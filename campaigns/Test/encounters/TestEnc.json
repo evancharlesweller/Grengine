@@ -1,0 +1,20 @@
+{
+  "map": "maps\\BattleMapTest.png",
+  "tokens": [
+    {
+      "image": "tokens\\TestToken.png",
+      "x": 3,
+      "y": 1
+    },
+    {
+      "image": "tokens\\TestToken.png",
+      "x": 1,
+      "y": 3
+    },
+    {
+      "image": "tokens\\TestToken.png",
+      "x": 1,
+      "y": 1
+    }
+  ]
+}

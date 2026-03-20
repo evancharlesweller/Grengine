@@ -1,0 +1,409 @@
+{
+  "version": 1,
+  "spells": [
+    {
+      "spell_id": "frag_grenade",
+      "name": "Frag Grenade",
+      "tags": [
+        "aoe"
+      ],
+      "cast": {
+        "range_ft": 60
+      },
+      "targeting": {
+        "kind": "template",
+        "delivery": "point",
+        "template": {
+          "shape": "radius",
+          "radius_ft": 15
+        },
+        "affects": "enemies"
+      },
+      "level": 1,
+      "casting_time": "1 action",
+      "duration": "instantaneous",
+      "save_type": "dex",
+      "damage": {
+        "expr": "2d6",
+        "type": "piercing"
+      }
+    },
+    {
+      "spell_id": "flamethrower_cone",
+      "name": "Flamethrower Burst",
+      "tags": [
+        "aoe"
+      ],
+      "cast": {
+        "range_ft": 0
+      },
+      "targeting": {
+        "kind": "template",
+        "delivery": "self",
+        "template": {
+          "shape": "cone",
+          "cone_length_ft": 30,
+          "cone_angle_deg": 90
+        },
+        "affects": "enemies"
+      },
+      "level": 1,
+      "casting_time": "1 action",
+      "duration": "instantaneous",
+      "save_type": "dex",
+      "damage": {
+        "expr": "3d6",
+        "type": "fire"
+      }
+    },
+    {
+      "spell_id": "rail_line",
+      "name": "Rail Line",
+      "tags": [
+        "aoe"
+      ],
+      "cast": {
+        "range_ft": 60
+      },
+      "targeting": {
+        "kind": "template",
+        "delivery": "point",
+        "template": {
+          "shape": "line",
+          "line_length_ft": 60
+        },
+        "affects": "enemies"
+      },
+      "level": 2,
+      "casting_time": "1 action",
+      "duration": "instantaneous",
+      "save_type": "dex",
+      "damage": {
+        "expr": "4d6",
+        "type": "force"
+      }
+    },
+    {
+      "spell_id": "fire_bolt",
+      "name": "Fire Bolt",
+      "targeting": "attack_roll",
+      "damage": {
+        "expr": "1d10",
+        "type": "fire"
+      },
+      "school": "evocation",
+      "level": 0,
+      "casting_time": "1 action",
+      "range_ft": 120,
+      "duration": "instantaneous",
+      "attack_roll": true,
+      "tags": [
+        "cantrip"
+      ]
+    },
+    {
+      "spell_id": "magic_missile",
+      "name": "Magic Missile",
+      "targeting": "auto_hit",
+      "damage": {
+        "expr": "3*(1d4+1)",
+        "type": "force"
+      },
+      "school": "evocation",
+      "level": 1,
+      "casting_time": "1 action",
+      "range_ft": 120,
+      "duration": "instantaneous",
+      "tags": [
+        "force",
+        "multi_hit"
+      ]
+    },
+    {
+      "spell_id": "sacred_flame",
+      "name": "Sacred Flame",
+      "targeting": "single",
+      "school": "evocation",
+      "level": 0,
+      "casting_time": "1 action",
+      "range_ft": 60,
+      "duration": "instantaneous",
+      "save_type": "dex",
+      "damage": {
+        "expr": "1d8",
+        "type": "radiant"
+      },
+      "tags": [
+        "cantrip",
+        "save"
+      ]
+    },
+    {
+      "spell_id": "cure_wounds",
+      "name": "Cure Wounds",
+      "school": "evocation",
+      "level": 1,
+      "casting_time": "1 action",
+      "range_ft": 5,
+      "targeting": {
+        "kind": "single",
+        "affects": "ally_or_self"
+      },
+      "duration": "instantaneous",
+      "concentration": false,
+      "damage": {
+        "expr": "1d8+3",
+        "heal": true
+      },
+      "effects": [
+        {
+          "type": "heal",
+          "expr": "1d8+3"
+        }
+      ]
+    },
+    {
+      "spell_id": "bless",
+      "name": "Bless",
+      "school": "enchantment",
+      "level": 1,
+      "casting_time": "1 action",
+      "range_ft": 30,
+      "targeting": {
+        "kind": "single",
+        "affects": "ally_or_self"
+      },
+      "duration": "10 rounds",
+      "concentration": true,
+      "effects": [
+        {
+          "type": "condition_apply",
+          "name": "blessed",
+          "rounds_remaining": 10
+        }
+      ]
+    },
+    {
+      "spell_id": "false_life",
+      "name": "False Life",
+      "school": "necromancy",
+      "level": 1,
+      "casting_time": "1 action",
+      "range_ft": 0,
+      "targeting": {
+        "kind": "self",
+        "affects": "self"
+      },
+      "duration": "1 hour",
+      "concentration": false,
+      "effects": [
+        {
+          "type": "temp_hp",
+          "expr": "1d4+4"
+        }
+      ]
+    },
+    {
+      "spell_id": "lesser_restoration",
+      "name": "Lesser Restoration",
+      "school": "abjuration",
+      "level": 2,
+      "casting_time": "1 action",
+      "range_ft": 5,
+      "targeting": {
+        "kind": "single",
+        "affects": "ally_or_self"
+      },
+      "duration": "instantaneous",
+      "concentration": false,
+      "effects": [
+        {
+          "type": "condition_remove",
+          "names": [
+            "blinded",
+            "deafened",
+            "paralyzed",
+            "poisoned"
+          ]
+        }
+      ]
+    },
+    {
+      "spell_id": "shield",
+      "name": "Shield",
+      "school": "abjuration",
+      "level": 1,
+      "casting_time": "1 reaction, when you are hit by an attack",
+      "range_ft": 0,
+      "targeting": {
+        "kind": "self",
+        "affects": "self"
+      },
+      "duration": "1 round",
+      "concentration": false,
+      "reaction": true,
+      "reaction_trigger": "when you are hit by an attack",
+      "effects": [
+        {
+          "type": "bonus",
+          "field": "ac",
+          "amount": 5,
+          "rounds_remaining": 1,
+          "label": "Shield"
+        }
+      ],
+      "tags": [
+        "reaction",
+        "defense"
+      ]
+    },
+    {
+      "spell_id": "hellish_rebuke",
+      "name": "Hellish Rebuke",
+      "school": "evocation",
+      "level": 1,
+      "casting_time": "1 reaction, when you take damage from a creature within 60 feet",
+      "range_ft": 60,
+      "targeting": {
+        "kind": "single",
+        "affects": "enemies"
+      },
+      "duration": "instantaneous",
+      "concentration": false,
+      "reaction": true,
+      "reaction_trigger": "when you take damage from a creature within 60 feet",
+      "save_type": "dex",
+      "damage": {
+        "expr": "2d10",
+        "type": "fire"
+      },
+      "tags": [
+        "reaction",
+        "save"
+      ]
+    },
+    {
+      "spell_id": "longstrider",
+      "name": "Longstrider",
+      "school": "transmutation",
+      "level": 1,
+      "casting_time": "1 action",
+      "range_ft": 30,
+      "targeting": {
+        "kind": "single",
+        "affects": "ally_or_self"
+      },
+      "target_mode": "single",
+      "duration": "10 rounds",
+      "concentration": false,
+      "effects": [
+        {
+          "type": "bonus",
+          "field": "movement_ft",
+          "amount": 10,
+          "rounds_remaining": 10,
+          "label": "Longstrider"
+        }
+      ]
+    },
+    {
+      "spell_id": "light",
+      "name": "Light",
+      "school": "evocation",
+      "level": 0,
+      "casting_time": "1 action",
+      "range_ft": 0,
+      "targeting": {
+        "kind": "single",
+        "affects": "ally_or_self"
+      },
+      "target_mode": "single",
+      "duration": "10 rounds",
+      "concentration": false,
+      "effects": [
+        {
+          "type": "light",
+          "field": "vision_ft",
+          "amount": 20,
+          "rounds_remaining": 10,
+          "label": "Light"
+        }
+      ]
+    },
+    {
+      "id": "mage_armor",
+      "name": "Mage Armor",
+      "school": "abjuration",
+      "level": 1,
+      "casting_time": "1 action",
+      "range_ft": 0,
+      "targeting": {
+        "kind": "self",
+        "affects": "self"
+      },
+      "duration": "8 hours",
+      "concentration": false,
+      "effects": [
+        {
+          "type": "modifier",
+          "field": "ac",
+          "amount": 3,
+          "rounds_remaining": null,
+          "label": "Mage Armor"
+        }
+      ],
+      "spell_id": "mage_armor"
+    },
+    {
+      "spell_id": "shield_of_faith",
+      "name": "Shield of Faith",
+      "school": "abjuration",
+      "level": 1,
+      "casting_time": "1 bonus action",
+      "range_ft": 60,
+      "targeting": {
+        "kind": "single",
+        "affects": "ally_or_self"
+      },
+      "duration": "10 rounds",
+      "concentration": true,
+      "effects": [
+        {
+          "type": "modifier",
+          "field": "ac",
+          "amount": 2,
+          "rounds_remaining": 10,
+          "label": "Shield of Faith"
+        }
+      ]
+    },
+    {
+      "spell_id": "hold_person",
+      "name": "Hold Person",
+      "school": "enchantment",
+      "level": 2,
+      "casting_time": "1 action",
+      "range_ft": 60,
+      "save_type": "wis",
+      "targeting": {
+        "kind": "single",
+        "affects": "enemies"
+      },
+      "duration": "10 rounds",
+      "concentration": true,
+      "effects": [
+        {
+          "type": "condition_apply",
+          "name": "paralyzed",
+          "rounds_remaining": 10,
+          "save": {
+            "ability": "wis",
+            "dc": 0,
+            "timing": "end",
+            "auto": true
+          }
+        }
+      ]
+    }
+  ]
+}

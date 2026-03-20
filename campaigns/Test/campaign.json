@@ -1,0 +1,9 @@
+{
+  "name": "Test",
+  "ruleset": "default",
+  "grid_ft": 5,
+  "vision_rules": "standard",
+  "content_pack": "fantasy_v1",
+  "hp_persistence": "campaign"
+}
+

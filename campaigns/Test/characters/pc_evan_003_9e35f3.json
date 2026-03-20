@@ -1,0 +1,266 @@
+{
+  "character_id": "pc_evan_003_9e35f3",
+  "player_id": "evan",
+  "display_name": "pc_evan_003",
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1772487893,
+    "finalized_at": 1772660289
+  },
+  "meta": {
+    "class": "Fighter",
+    "subclass": "",
+    "level": 1,
+    "race": "Human",
+    "background": "Soldier",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "background": {
+    "personality_traits": "Test",
+    "ideals": "Good",
+    "bonds": "Bonded With a Dog",
+    "flaws": "Selfish",
+    "backstory": "Testing character With a dog IG"
+  },
+  "features": {
+    "features_and_traits": "Feature Test",
+    "attacks_and_spellcasting": ""
+  },
+  "details": {
+    "age": "21",
+    "height": "6'1",
+    "weight": "250",
+    "eyes": "blue",
+    "skin": "white",
+    "hair": "blonde",
+    "appearance": "Tall blond and big",
+    "allies_and_organizations": "Allied with the world",
+    "treasure": "I treasure my family\nRod of Discord"
+  },
+  "currency": {
+    "cp": 89,
+    "sp": 10,
+    "ep": 0,
+    "gp": 1,
+    "pp": 0
+  },
+  "combat": {
+    "inspiration": false,
+    "hit_die_sides": 8,
+    "hit_dice_total": 5,
+    "hit_dice_used": 0,
+    "death_saves": {
+      "successes": 0,
+      "failures": 0
+    }
+  },
+  "spellcasting": {
+    "class": "",
+    "ability": "",
+    "save_dc": 0,
+    "attack_bonus": 0,
+    "cantrips": "n/a",
+    "spells": {
+      "1": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "2": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "3": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "4": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "5": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "6": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "7": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "8": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "9": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      }
+    }
+  },
+  "abilities": {
+    "str": 20,
+    "dex": 14,
+    "con": 13,
+    "int": 16,
+    "wis": 15,
+    "cha": 17
+  },
+  "proficiencies": {
+    "save_proficiencies": [
+      "con",
+      "str"
+    ],
+    "skill_proficiencies": [
+      "athletics",
+      "intimidation",
+      "performance"
+    ],
+    "saves": {
+      "str": true,
+      "con": true
+    },
+    "skills": {
+      "athletics": true,
+      "religion": false,
+      "performance": true,
+      "intimidation": true
+    },
+    "languages": [
+      {
+        "name": "Gottish",
+        "speak": true,
+        "read": true,
+        "write": true
+      },
+      {
+        "name": "Elvish",
+        "speak": true,
+        "read": true,
+        "write": true
+      }
+    ],
+    "other": {
+      "armor": "Light, Medium, Heavy",
+      "weapons": "Simple Weapons",
+      "tools": "",
+      "other": "Horses"
+    }
+  },
+  "stats": {
+    "max_hp": 10,
+    "current_hp": 10,
+    "defense": 10,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60
+  },
+  "equipped": {
+    "weapon_id": "",
+    "armor_id": ""
+  },
+  "base_stats": {
+    "max_hp": 10,
+    "ac": 10,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "",
+    "armor_id": "",
+    "weapon": "",
+    "armor": ""
+  },
+  "resources": {
+    "current_hp": 10,
+    "temp_hp": 0
+  },
+  "inventory": [
+    {
+      "type": "note",
+      "note_id": "633ac7aed48a4093b6d25164d14b09cf",
+      "name": "Note",
+      "qty": 1,
+      "weight": 0,
+      "created_at": 1772839121
+    }
+  ],
+  "notes": [
+    {
+      "note_id": "633ac7aed48a4093b6d25164d14b09cf",
+      "title": "Note",
+      "text": "Note",
+      "created_at": 1772839121,
+      "updated_at": 1772839121
+    }
+  ],
+  "status_effects": [],
+  "updated_at": 1772839121137,
+  "hp_log": [
+    {
+      "ts": 1772487912,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772660407,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 5,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772660409,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 8,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772660411,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 1,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772660412,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 10
+      }
+    }
+  ]
+}

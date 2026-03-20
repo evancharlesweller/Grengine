@@ -1,0 +1,289 @@
+{
+  "character_id": "evanthedwarf_17434a",
+  "player_id": "evan",
+  "display_name": "Evan The dwarf",
+  "lifecycle": {
+    "status": "creating",
+    "created_at": 1772915069
+  },
+  "meta": {
+    "class": "Barbarian",
+    "subclass": "",
+    "level": 2,
+    "race": "Deep Dwarf",
+    "background": "soldier",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "race_id": "deep dwarf",
+  "base_race_id": "dwarf",
+  "lineage_id": "",
+  "class_levels": {
+    "barbarian": 2
+  },
+  "trait_ids": [
+    "dwarf_darkvision",
+    "dwarf_stonecraft",
+    "dwarf_poison_resilience",
+    "deep_dwarf_deepvision",
+    "deep_dwarf_stone_endurance",
+    "deep_dwarf_subterranean_instinct",
+    "deep_dwarf_light_sensitivity_minor"
+  ],
+  "ability_ids": [
+    "barbarian_rage",
+    "barbarian_unarmored_defense",
+    "barbarian_reckless_attack"
+  ],
+  "resource_pools": {
+    "stone_endurance": {
+      "current": 1,
+      "max": 1,
+      "refresh": "long_rest"
+    },
+    "rage": {
+      "current": 1,
+      "max": 2,
+      "refresh": "long_rest"
+    }
+  },
+  "feature_state": {
+    "used_this_turn": [],
+    "used_this_round": [],
+    "once_per_turn_flags": {},
+    "once_per_round_flags": {}
+  },
+  "background": {
+    "personality_traits": "",
+    "ideals": "",
+    "bonds": "",
+    "flaws": "",
+    "backstory": ""
+  },
+  "combat_effects": [],
+  "features": {
+    "features_and_traits": "\u2022 Rage\n\u2022 Unarmored Defense\n\u2022 Darkvision\n\u2022 Stonecraft\n\u2022 Poison Resilience\n\u2022 Deepvision\n\u2022 Stone Endurance\n\u2022 Subterranean Instinct\n\u2022 Light Sensitivity (Minor)\n\u2022 Reckless Attack\n\u2022 Danger Sense",
+    "attacks_and_spellcasting": ""
+  },
+  "details": {
+    "age": "",
+    "height": "",
+    "weight": "",
+    "eyes": "",
+    "skin": "",
+    "hair": "",
+    "appearance": "",
+    "allies_and_organizations": "",
+    "treasure": ""
+  },
+  "currency": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 0,
+    "pp": 0
+  },
+  "combat": {
+    "inspiration": false,
+    "hit_die_sides": 12,
+    "hit_dice_total": 2,
+    "hit_dice_used": 0,
+    "death_saves": {
+      "successes": 0,
+      "failures": 0
+    },
+    "ac": 15,
+    "darkvision_ft": 120,
+    "weapon_ref": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "",
+    "rage_active": true,
+    "rage_damage_bonus": 2,
+    "attacks_per_action": 1,
+    "relentless_rage_uses": 0,
+    "danger_sense": true,
+    "reckless_attack_active": false
+  },
+  "spellcasting": {
+    "class": "",
+    "ability": "",
+    "save_dc": 0,
+    "attack_bonus": 0,
+    "cantrips": "",
+    "spells": {
+      "1": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "2": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "3": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "4": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "5": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "6": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "7": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "8": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "9": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      }
+    },
+    "slot_refresh": "long_rest",
+    "known_mode": "",
+    "concentration": {
+      "active": false,
+      "spell_id": "",
+      "source": ""
+    },
+    "known_spells": [],
+    "prepared_spells": [],
+    "spellbook_spells": []
+  },
+  "abilities": {
+    "str": 17,
+    "dex": 13,
+    "con": 19,
+    "int": 16,
+    "wis": 15,
+    "cha": 16
+  },
+  "proficiencies": {
+    "save_proficiencies": [
+      "con",
+      "str"
+    ],
+    "skill_proficiencies": [
+      "athletics",
+      "intimidation",
+      "religion"
+    ],
+    "saves": {
+      "str": true,
+      "con": true
+    },
+    "skills": {
+      "intimidation": true,
+      "athletics": true,
+      "religion": true
+    },
+    "languages": [
+      {
+        "name": "Dwarvish",
+        "speak": true,
+        "read": true,
+        "write": true
+      }
+    ],
+    "other": {
+      "armor": "Light armor, medium armor, shields",
+      "weapons": "Simple weapons, martial weapons",
+      "tools": "",
+      "other": ""
+    }
+  },
+  "stats": {
+    "max_hp": 51,
+    "current_hp": 49,
+    "defense": 15,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 120,
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "",
+    "defense_base": 10
+  },
+  "resources": {
+    "current_hp": 49,
+    "temp_hp": 0,
+    "damage_resistances": [
+      "poison",
+      "bludgeoning",
+      "piercing",
+      "slashing"
+    ],
+    "hit_dice_remaining": 2
+  },
+  "equipped": {
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": ""
+  },
+  "base_stats": {
+    "max_hp": 51,
+    "ac": 11,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 120,
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "",
+    "weapon": "",
+    "armor": "",
+    "ac_base": 10
+  },
+  "inventory": [],
+  "notes": [],
+  "status_effects": [],
+  "updated_at": 1773000091156,
+  "hp_log": [
+    {
+      "ts": 1772928192,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "49bdf628-d5a2-4730-ae25-e587da336bb8",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 38,
+        "temp_hp": 0
+      }
+    }
+  ],
+  "known_spells": [],
+  "prepared_spells": [],
+  "spellbook_spells": []
+}

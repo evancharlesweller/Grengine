@@ -1,0 +1,1674 @@
+{
+  "schema_version": 2,
+  "character_id": "pc_evan_001",
+  "player_id": "evan",
+  "name": "Evan",
+  "stats": {
+    "max_hp": 30,
+    "current_hp": 30,
+    "defense": 13,
+    "movement_ft": 30,
+    "vision_ft": 60,
+    "attack_modifier": 0,
+    "defense_base": 10,
+    "weapon_id": "6a2fbf5966854e1da68442b39e69037a",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857"
+  },
+  "abilities": {
+    "STR": 10,
+    "DEX": 16,
+    "CON": 14,
+    "INT": 10,
+    "WIS": 12,
+    "CHA": 8,
+    "str": 10,
+    "dex": 10,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "proficiency_bonus": 2,
+  "save_proficiencies": [
+    "DEX",
+    "WIS"
+  ],
+  "resources": {
+    "current_hp": 30,
+    "temp_hp": 0,
+    "damage_resistances": [],
+    "hit_dice_remaining": 2
+  },
+  "conditions": {},
+  "inventory": [
+    {
+      "item_id": "pipe_rifle",
+      "qty": 1
+    },
+    {
+      "item_id": "stimpak",
+      "qty": 2
+    },
+    {
+      "type": "item",
+      "item_id": "ff0cef86079b4978b13be76e9ff6e71e",
+      "name": "Combat Knife",
+      "qty": 1,
+      "weight": 1.0,
+      "icon": "icons/TestToken.png",
+      "created_at": 1772820601
+    },
+    {
+      "type": "item",
+      "item_id": "09a367e917da4cba9a2bd7a3d4b35857",
+      "name": "Leather Armor",
+      "qty": 1,
+      "weight": 10.0,
+      "icon": "images.jpg",
+      "created_at": 1772820604
+    },
+    {
+      "type": "item",
+      "item_id": "6a2fbf5966854e1da68442b39e69037a",
+      "name": "Pipe Rifle",
+      "qty": 1,
+      "weight": 8.0,
+      "icon": "",
+      "created_at": 1772820611
+    },
+    {
+      "type": "note",
+      "note_id": "75df8a24102248f197280fb1c02a0d0f",
+      "name": "Note",
+      "qty": 1,
+      "weight": 0,
+      "created_at": 1772844721
+    }
+  ],
+  "equipped": {
+    "weapon_id": "6a2fbf5966854e1da68442b39e69037a",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857"
+  },
+  "known_spells": [
+    "frag_grenade",
+    "flamethrower_cone",
+    "rail_line"
+  ],
+  "display_name": "pc_evan_001",
+  "base_stats": {
+    "max_hp": 30,
+    "ac": 13,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "6a2fbf5966854e1da68442b39e69037a",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857",
+    "weapon": "",
+    "armor": "",
+    "ac_base": 10
+  },
+  "status_effects": [],
+  "updated_at": 1772938003627,
+  "hp_log": [
+    {
+      "ts": 1771697246,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "2b5c57f6-628b-4ff4-922e-0798c52128b6",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1771734544,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 28,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771734706,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771797814,
+      "delta": -6,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 18,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878607,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 15,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878622,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 11,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878624,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878631,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 8,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878644,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 4,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878649,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878651,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:1d4",
+      "after": {
+        "current_hp": 2,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878788,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1771878814,
+      "delta": -49,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:20d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878823,
+      "delta": -50,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:20d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771878828,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1771879402,
+      "delta": -55,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:20d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771879410,
+      "delta": -51,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:20d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771879412,
+      "delta": -54,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,12:20d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771879707,
+      "delta": -15,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:5d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771879712,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1771879725,
+      "delta": -9,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:5d4",
+      "after": {
+        "current_hp": 21,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771881605,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:10,4:1d4",
+      "after": {
+        "current_hp": 20,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771900751,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 16,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771900774,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 13,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1771900775,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 11,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772050586,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051094,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 7,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051096,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:5,16:1d4",
+      "after": {
+        "current_hp": 5,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051097,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:5,16:1d4",
+      "after": {
+        "current_hp": 4,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051098,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:5,16:1d4",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051099,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:5,16:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051111,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772051119,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 28,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051121,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:5,16:1d4",
+      "after": {
+        "current_hp": 27,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051129,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:5,16:1d4",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051134,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 21,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051148,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772051154,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 26,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051156,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:5,16:1d4",
+      "after": {
+        "current_hp": 25,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772051159,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:5,16:1d4",
+      "after": {
+        "current_hp": 23,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772148600,
+      "delta": -7,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 16,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772203935,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:6,16:1d4",
+      "after": {
+        "current_hp": 12,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772203938,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,17:1d4",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772203970,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:6,16:1d4",
+      "after": {
+        "current_hp": 9,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772220621,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 5,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772220625,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:5,16:1d4",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772220625,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:5,16:1d4",
+      "after": {
+        "current_hp": 1,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772220628,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772220675,
+      "delta": -5,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 25,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772224756,
+      "delta": -5,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:5,7:r5:2d6",
+      "after": {
+        "current_hp": 20,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772224757,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:5,7:r5:2d6",
+      "after": {
+        "current_hp": 16,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772224759,
+      "delta": -7,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:5,7:r5:2d6",
+      "after": {
+        "current_hp": 9,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772230250,
+      "delta": -7,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,3->10,3",
+      "after": {
+        "current_hp": 2,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772230257,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,3->10,3",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772230261,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772237590,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:11,4:1d4",
+      "after": {
+        "current_hp": 29,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772237608,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:11,4:1d4",
+      "after": {
+        "current_hp": 27,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772237651,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:8,22:1d4",
+      "after": {
+        "current_hp": 23,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772239493,
+      "delta": -11,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,3->10,3",
+      "after": {
+        "current_hp": 12,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772239497,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,3->10,3",
+      "after": {
+        "current_hp": 8,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772239665,
+      "delta": -5,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,4->10,4",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772239667,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772239669,
+      "delta": -7,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,4->10,4",
+      "after": {
+        "current_hp": 23,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772817141,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "4c3f1f6e-0d12-4ad6-b965-597a77728a40",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 20,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772817893,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "44cb5725-dc01-4b5e-bfc9-10a0355c3d2d",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 19,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772850823,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772850851,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:5,16:1d4",
+      "after": {
+        "current_hp": 28,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772896831,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:5,16:1d4",
+      "after": {
+        "current_hp": 25,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772896837,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:5,16:1d4",
+      "after": {
+        "current_hp": 23,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772896895,
+      "delta": -5,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "status:poisoned",
+      "after": {
+        "current_hp": 18,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772896897,
+      "delta": -5,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "status:poisoned",
+      "after": {
+        "current_hp": 13,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772896898,
+      "delta": -5,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "status:poisoned",
+      "after": {
+        "current_hp": 8,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897101,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:9,16:1d4",
+      "after": {
+        "current_hp": 6,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897109,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:9,16:1d4",
+      "after": {
+        "current_hp": 5,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897110,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:9,16:1d4",
+      "after": {
+        "current_hp": 2,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897113,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:9,16:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897119,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:9,16:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897133,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:9,16:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897134,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:9,16:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897160,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772897165,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:9,16:1d4",
+      "after": {
+        "current_hp": 29,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897188,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:2,12:1d4",
+      "after": {
+        "current_hp": 27,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897193,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:2,12:1d4",
+      "after": {
+        "current_hp": 23,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897195,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:2,12:1d4",
+      "after": {
+        "current_hp": 20,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897195,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:2,12:1d4",
+      "after": {
+        "current_hp": 19,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897196,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:2,12:1d4",
+      "after": {
+        "current_hp": 18,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897197,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:2,12:1d4",
+      "after": {
+        "current_hp": 17,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897197,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:2,12:1d4",
+      "after": {
+        "current_hp": 13,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897198,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:2,12:1d4",
+      "after": {
+        "current_hp": 12,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897202,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:2,12:1d4",
+      "after": {
+        "current_hp": 11,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897223,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:2,12:1d4",
+      "after": {
+        "current_hp": 7,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897223,
+      "delta": -11,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:4,11:r5:2d6",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897230,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772897231,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:2,12:1d4",
+      "after": {
+        "current_hp": 28,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897232,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:2,12:1d4",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897232,
+      "delta": -7,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:4,11:r5:2d6",
+      "after": {
+        "current_hp": 17,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897235,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_end:2,12:1d4",
+      "after": {
+        "current_hp": 15,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897235,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:turn_start:2,12:1d4",
+      "after": {
+        "current_hp": 11,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897288,
+      "delta": -8,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,5->10,5",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897303,
+      "delta": -8,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "fall:30ft:11,5->10,5",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897311,
+      "delta": -1,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:2,11:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897319,
+      "delta": -3,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "hazard:fire:enter:2,11:1d4",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772897322,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772901621,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "433bbe40-6e67-4b23-b360-617b426e9008",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:4,5:r5:2d6",
+      "after": {
+        "current_hp": 26,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772901635,
+      "delta": -10,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "433bbe40-6e67-4b23-b360-617b426e9008",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:4,5:r5:2d6",
+      "after": {
+        "current_hp": 16,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772901670,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "433bbe40-6e67-4b23-b360-617b426e9008",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:5,7:r5:2d6",
+      "after": {
+        "current_hp": 12,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772901677,
+      "delta": -8,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "433bbe40-6e67-4b23-b360-617b426e9008",
+      "pending_attack_id": "cloud:poison_gas:poison:turn_start:5,7:r5:2d6",
+      "after": {
+        "current_hp": 4,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772909308,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 2,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772909318,
+      "delta": -2,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 0,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772910658,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772911512,
+      "delta": -6,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "reaction:6c1a3758-f14f-4e45-bcc4-c0e391f282c1:8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772911566,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 10,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772911589,
+      "delta": -8,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 2
+      }
+    },
+    {
+      "ts": 1772911598,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 24,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772928098,
+      "delta": -4,
+      "source": "attack",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "pending_attack_id": "reaction:20404ef7-8dff-45f7-9778-759d1da394b6:8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 20,
+        "temp_hp": 0
+      }
+    },
+    {
+      "ts": 1772934780,
+      "delta": 0,
+      "source": "set_hp",
+      "reason": "dm_admin_heal_full",
+      "encounter_id": "",
+      "token_id": "8ee6bd0c-cbf7-461f-aa67-65f34dc81634",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    }
+  ],
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1772493611
+  },
+  "meta": {
+    "class": "",
+    "subclass": "",
+    "level": 2,
+    "race": "",
+    "background": "",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "background": {
+    "personality_traits": "",
+    "ideals": "",
+    "bonds": "",
+    "flaws": "",
+    "backstory": ""
+  },
+  "features": {
+    "features_and_traits": "",
+    "attacks_and_spellcasting": ""
+  },
+  "details": {
+    "age": "",
+    "height": "",
+    "weight": "",
+    "eyes": "",
+    "skin": "",
+    "hair": "",
+    "appearance": "",
+    "allies_and_organizations": "",
+    "treasure": ""
+  },
+  "currency": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 0,
+    "pp": 0
+  },
+  "combat": {
+    "inspiration": false,
+    "hit_die_sides": 8,
+    "hit_dice_total": 2,
+    "hit_dice_used": 0,
+    "death_saves": {
+      "successes": 0,
+      "failures": 0
+    },
+    "ac": 13,
+    "darkvision_ft": 0,
+    "weapon_ref": "6a2fbf5966854e1da68442b39e69037a",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857"
+  },
+  "spellcasting": {
+    "class": "",
+    "ability": "",
+    "save_dc": 0,
+    "attack_bonus": 0,
+    "cantrips": "",
+    "spells": {
+      "1": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "2": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "3": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "4": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "5": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "6": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "7": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "8": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "9": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      }
+    }
+  },
+  "proficiencies": {
+    "save_proficiencies": [],
+    "skill_proficiencies": [],
+    "saves": {},
+    "skills": {},
+    "languages": [
+      {
+        "name": "Gottish",
+        "speak": true,
+        "read": false,
+        "write": false
+      }
+    ],
+    "other": {
+      "armor": "",
+      "weapons": "",
+      "tools": "",
+      "other": ""
+    }
+  },
+  "notes": [
+    {
+      "note_id": "75df8a24102248f197280fb1c02a0d0f",
+      "title": "Note",
+      "text": "Note",
+      "created_at": 1772844721,
+      "updated_at": 1772844721,
+      "from_character_id": "pc_evan_003_9e35f3",
+      "from_player_id": "evan"
+    }
+  ],
+  "combat_effects": [],
+  "race_id": "",
+  "base_race_id": "",
+  "lineage_id": "",
+  "class_levels": {},
+  "trait_ids": [],
+  "ability_ids": [],
+  "resource_pools": {},
+  "feature_state": {
+    "used_this_turn": [],
+    "used_this_round": [],
+    "once_per_turn_flags": {},
+    "once_per_round_flags": {}
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "map": "maps\\Battlemap.png",
+  "tokens": [
+    {
+      "token_id": "5dfb7111-3d51-4ec9-b0a3-86fd390f018a",
+      "image": "tokens\\TestToken.png",
+      "x": 6,
+      "y": 3,
+      "display_name": "Unnamed",
+      "hp": 10,
+      "max_hp": 10,
+      "ac": 10,
+      "weapon": "",
+      "armor": "",
+      "movement": 30,
+      "attack_modifier": 0,
+      "side": "enemy",
+      "vision_ft": 60,
+      "kind": "npc",
+      "player_id": "",
+      "character_id": "",
+      "stat_source": "template"
+    },
+    {
+      "token_id": "518ad7da-fffc-4d4d-9e9d-8b7627e96aac",
+      "image": "tokens\\TestToken.png",
+      "x": 1,
+      "y": 0,
+      "display_name": "Unnamed",
+      "hp": 10,
+      "max_hp": 10,
+      "ac": 10,
+      "weapon": "",
+      "armor": "",
+      "movement": 30,
+      "attack_modifier": 0,
+      "side": "enemy",
+      "vision_ft": 60,
+      "kind": "npc",
+      "player_id": "",
+      "character_id": "",
+      "stat_source": "template"
+    }
+  ]
+}

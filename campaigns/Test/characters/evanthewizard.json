@@ -1,0 +1,438 @@
+{
+  "character_id": "evanthewizard",
+  "player_id": "evan",
+  "display_name": "Evan The Wizard",
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1773013060,
+    "finalized_at": 1773704186
+  },
+  "meta": {
+    "class": "Wizard",
+    "subclass": "",
+    "level": 1,
+    "race": "Human",
+    "background": "Wizard",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "race_id": "human",
+  "base_race_id": "human",
+  "lineage_id": "",
+  "class_levels": {
+    "wizard": 1
+  },
+  "trait_ids": [
+    "human_bonus_skill"
+  ],
+  "ability_ids": [
+    "wizard_spellcasting",
+    "wizard_arcane_recovery"
+  ],
+  "resource_pools": {
+    "arcane_recovery": {
+      "current": 1,
+      "max": 1,
+      "refresh": "long_rest"
+    }
+  },
+  "feature_state": {
+    "used_this_turn": [],
+    "used_this_round": [],
+    "once_per_turn_flags": {},
+    "once_per_round_flags": {}
+  },
+  "background": {
+    "personality_traits": "",
+    "ideals": "",
+    "bonds": "",
+    "flaws": "",
+    "backstory": ""
+  },
+  "combat_effects": [],
+  "features": {
+    "features_and_traits": "\u2022 Spellcasting\n\u2022 Arcane Recovery\n\u2022 Gain proficiency in one additional skill of your choice.",
+    "attacks_and_spellcasting": ""
+  },
+  "details": {
+    "age": "",
+    "height": "",
+    "weight": "",
+    "eyes": "",
+    "skin": "",
+    "hair": "",
+    "appearance": "",
+    "allies_and_organizations": "",
+    "treasure": ""
+  },
+  "currency": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 0,
+    "pp": 0
+  },
+  "combat": {
+    "inspiration": false,
+    "hit_die_sides": 6,
+    "hit_dice_total": 1,
+    "hit_dice_used": 0,
+    "death_saves": {
+      "successes": 0,
+      "failures": 0
+    },
+    "arcane_recovery_levels": 1,
+    "arcane_recovery_levels_remaining": 1,
+    "spell_mastery": false,
+    "signature_spells": false,
+    "ac": 11,
+    "weapon_ref": "",
+    "armor_id": "",
+    "darkvision_ft": 0
+  },
+  "spellcasting": {
+    "class": "Wizard",
+    "ability": "int",
+    "save_dc": 15,
+    "attack_bonus": 7,
+    "cantrips": [
+      "fire_bolt",
+      "light"
+    ],
+    "slot_refresh": "long_rest",
+    "known_mode": "prepared",
+    "concentration": {
+      "active": false,
+      "spell_id": "",
+      "source": ""
+    },
+    "known_spells": [
+      "shield",
+      "magic_missile",
+      "mage_armor",
+      "longstrider",
+      "frag_grenade",
+      "flamethrower_cone"
+    ],
+    "prepared_spells": [
+      "shield",
+      "magic_missile",
+      "mage_armor",
+      "longstrider",
+      "frag_grenade",
+      "flamethrower_cone"
+    ],
+    "spellbook_spells": [
+      "shield",
+      "magic_missile",
+      "mage_armor",
+      "longstrider",
+      "frag_grenade",
+      "flamethrower_cone"
+    ],
+    "spells": {
+      "1": {
+        "total": 2,
+        "used": 0,
+        "list": "",
+        "remaining": 2,
+        "refresh": "long_rest",
+        "source": "spellcasting"
+      },
+      "2": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "3": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "4": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "5": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "6": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "7": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "8": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "9": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      }
+    },
+    "spellcasting_classes": [
+      "wizard"
+    ],
+    "spellcasting_profile": "full",
+    "preparation_formula": "Wizard level + INT modifier (current max 6)",
+    "spellbook_enabled": true,
+    "multiclass_caster_level": 1,
+    "preparation_max": 6,
+    "slot_options": [
+      {
+        "slot_level": 1,
+        "source": "shared",
+        "refresh": "long_rest"
+      }
+    ],
+    "known_limit": 0,
+    "cantrip_limit": 3,
+    "spellbook_minimum": 6,
+    "bonus_spell_limit": 0,
+    "bonus_spell_ids": [],
+    "metamagic_choice_limit": 0,
+    "metamagic_options": [],
+    "spell_mastery_limit": 0,
+    "spell_mastery_spells": [],
+    "signature_spell_limit": 0,
+    "signature_spells": [],
+    "sanitized_spell_state": {
+      "invalid_ids_removed": [],
+      "class_filtered_removed": [],
+      "allowed_spell_ids": [
+        "false_life",
+        "fire_bolt",
+        "flamethrower_cone",
+        "frag_grenade",
+        "hold_person",
+        "light",
+        "longstrider",
+        "mage_armor",
+        "magic_missile",
+        "rail_line",
+        "shield"
+      ],
+      "allowed_cantrip_ids": [
+        "fire_bolt",
+        "light"
+      ],
+      "allowed_leveled_spell_ids": [
+        "false_life",
+        "flamethrower_cone",
+        "frag_grenade",
+        "hold_person",
+        "longstrider",
+        "mage_armor",
+        "magic_missile",
+        "rail_line",
+        "shield"
+      ]
+    },
+    "allowed_spell_ids": [
+      "false_life",
+      "fire_bolt",
+      "flamethrower_cone",
+      "frag_grenade",
+      "hold_person",
+      "light",
+      "longstrider",
+      "mage_armor",
+      "magic_missile",
+      "rail_line",
+      "shield"
+    ],
+    "allowed_cantrip_ids": [
+      "fire_bolt",
+      "light"
+    ],
+    "allowed_leveled_spell_ids": [
+      "false_life",
+      "flamethrower_cone",
+      "frag_grenade",
+      "hold_person",
+      "longstrider",
+      "mage_armor",
+      "magic_missile",
+      "rail_line",
+      "shield"
+    ],
+    "pact_magic": {
+      "enabled": false,
+      "slot_level": 0,
+      "slots_total": 0,
+      "refresh": "short_rest",
+      "used": 0,
+      "remaining": 0,
+      "mixed_with_other_slots": false
+    }
+  },
+  "known_spells": [
+    "shield",
+    "magic_missile",
+    "mage_armor",
+    "longstrider",
+    "frag_grenade",
+    "flamethrower_cone"
+  ],
+  "prepared_spells": [
+    "shield",
+    "magic_missile",
+    "mage_armor",
+    "longstrider",
+    "frag_grenade",
+    "flamethrower_cone"
+  ],
+  "spellbook_spells": [
+    "shield",
+    "magic_missile",
+    "mage_armor",
+    "longstrider",
+    "frag_grenade",
+    "flamethrower_cone"
+  ],
+  "abilities": {
+    "str": 10,
+    "dex": 12,
+    "con": 12,
+    "int": 20,
+    "wis": 17,
+    "cha": 16
+  },
+  "proficiencies": {
+    "save_proficiencies": [
+      "int",
+      "wis"
+    ],
+    "skill_proficiencies": [
+      "arcana",
+      "history",
+      "investigation",
+      "religion"
+    ],
+    "saves": {
+      "int": true,
+      "wis": true
+    },
+    "skills": {
+      "arcana": true,
+      "history": true,
+      "religion": true,
+      "investigation": true
+    },
+    "languages": [],
+    "other": {
+      "armor": "",
+      "weapons": "Daggers, darts, slings, quarterstaffs, light crossbows",
+      "tools": "",
+      "other": ""
+    }
+  },
+  "stats": {
+    "max_hp": 11,
+    "current_hp": 11,
+    "defense_base": 10,
+    "defense": 11,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "",
+    "armor_id": ""
+  },
+  "resources": {
+    "current_hp": 11,
+    "temp_hp": 0,
+    "damage_resistances": [],
+    "hit_dice_remaining": 1
+  },
+  "equipped": {
+    "weapon_id": "",
+    "armor_id": ""
+  },
+  "base_stats": {
+    "max_hp": 11,
+    "ac_base": 10,
+    "ac": 11,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "",
+    "armor_id": "",
+    "weapon": "",
+    "armor": ""
+  },
+  "inventory": [
+    {
+      "type": "note",
+      "note_id": "1dd25382556b4a6fbd93289fd7b3bf97",
+      "name": "New Note",
+      "qty": 1,
+      "weight": 0,
+      "created_at": 1773872036
+    }
+  ],
+  "notes": [
+    {
+      "note_id": "1dd25382556b4a6fbd93289fd7b3bf97",
+      "title": "New Note",
+      "text": "New note test test test",
+      "created_at": 1773872036,
+      "updated_at": 1773872036
+    }
+  ],
+  "status_effects": [],
+  "updated_at": 1773872150491,
+  "bonus_spell_ids": [],
+  "metamagic_options": [],
+  "spell_mastery_spells": [],
+  "signature_spells": [],
+  "hp_log": [
+    {
+      "ts": 1773703743,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 11,
+        "temp_hp": 0,
+        "max_hp": 11
+      }
+    },
+    {
+      "ts": 1773871596,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 11,
+        "temp_hp": 0,
+        "max_hp": 11
+      }
+    }
+  ]
+}

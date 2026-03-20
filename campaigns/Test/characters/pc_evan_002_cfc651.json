@@ -1,0 +1,123 @@
+{
+  "character_id": "pc_evan_002_cfc651",
+  "player_id": "evan",
+  "display_name": "pc_evan_002",
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1772333086,
+    "finalized_at": 1772333158
+  },
+  "meta": {
+    "class": "Fighter",
+    "subclass": "",
+    "level": 1,
+    "race": "Human",
+    "background": "Soldier",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "abilities": {
+    "str": 17,
+    "dex": 14,
+    "con": 14,
+    "int": 12,
+    "wis": 11,
+    "cha": 12
+  },
+  "proficiencies": {
+    "save_proficiencies": [
+      "con",
+      "str"
+    ],
+    "skill_proficiencies": [
+      "athletics",
+      "investigation",
+      "persuasion"
+    ],
+    "saves": {
+      "str": true,
+      "con": true
+    },
+    "skills": {
+      "athletics": true,
+      "persuasion": true,
+      "investigation": true
+    },
+    "languages": []
+  },
+  "stats": {
+    "max_hp": 10,
+    "current_hp": 10,
+    "defense": 10,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60
+  },
+  "equipped": {
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857"
+  },
+  "base_stats": {
+    "max_hp": 10,
+    "ac": 10,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857",
+    "weapon": "",
+    "armor": ""
+  },
+  "resources": {
+    "current_hp": 10,
+    "temp_hp": 0
+  },
+  "inventory": [
+    {
+      "type": "ranged",
+      "item_id": "6a2fbf5966854e1da68442b39e69037a",
+      "name": "Pipe Rifle",
+      "qty": 1,
+      "weight": 0.0,
+      "icon": "",
+      "created_at": 1772333165
+    },
+    {
+      "type": "consumable",
+      "item_id": "301450b12fd9421e90d5737cdda5fb14",
+      "name": "Stimpak",
+      "qty": 5,
+      "weight": 0.0,
+      "icon": "",
+      "created_at": 1772333176
+    },
+    {
+      "type": "note",
+      "note_id": "dd0060dbdbdc48d0a9d2d7e873e5ccb8",
+      "name": "Test Note",
+      "qty": 1,
+      "weight": 0,
+      "created_at": 1772333187
+    },
+    {
+      "type": "light",
+      "item_id": "09a367e917da4cba9a2bd7a3d4b35857",
+      "name": "Leather Armor",
+      "qty": 1,
+      "weight": 0.0,
+      "icon": "images.jpg",
+      "created_at": 1772334194
+    }
+  ],
+  "notes": [
+    {
+      "note_id": "dd0060dbdbdc48d0a9d2d7e873e5ccb8",
+      "title": "Test Note",
+      "text": "test note test note",
+      "created_at": 1772333187,
+      "updated_at": 1772334137
+    }
+  ],
+  "status_effects": [],
+  "updated_at": 1772335319
+}

@@ -1,0 +1,411 @@
+{
+  "character_id": "evanthepaladin_36690c",
+  "player_id": "evan",
+  "display_name": "Evan the Paladin",
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1772925878,
+    "finalized_at": 1773878023
+  },
+  "meta": {
+    "class": "Paladin",
+    "subclass": "",
+    "level": 1,
+    "race": "Stormen",
+    "background": "Soldier",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "race_id": "stormen",
+  "base_race_id": "stormen",
+  "lineage_id": "",
+  "class_levels": {
+    "paladin": 1
+  },
+  "trait_ids": [
+    "stormen_mountain_born",
+    "stormen_giant_blooded_frame",
+    "stormen_stone_strider",
+    "stormen_honored_challenge"
+  ],
+  "ability_ids": [
+    "paladin_divine_sense",
+    "paladin_lay_on_hands"
+  ],
+  "resource_pools": {
+    "lay_on_hands": {
+      "current": 5,
+      "max": 5,
+      "refresh": "long_rest"
+    },
+    "honored_challenge": {
+      "current": 1,
+      "max": 1,
+      "refresh": "long_rest"
+    },
+    "divine_sense": {
+      "current": 1,
+      "max": 1,
+      "refresh": "long_rest"
+    }
+  },
+  "feature_state": {
+    "used_this_turn": [],
+    "used_this_round": [],
+    "once_per_turn_flags": {},
+    "once_per_round_flags": {}
+  },
+  "background": {
+    "personality_traits": "",
+    "ideals": "",
+    "bonds": "",
+    "flaws": "",
+    "backstory": ""
+  },
+  "combat_effects": [],
+  "features": {
+    "features_and_traits": "\u2022 Divine Sense\n\u2022 Lay on Hands\n\u2022 Mountain Born\n\u2022 Giant-Blooded Frame\n\u2022 Stone Strider\n\u2022 Honored Challenge",
+    "attacks_and_spellcasting": ""
+  },
+  "details": {
+    "age": "",
+    "height": "",
+    "weight": "",
+    "eyes": "",
+    "skin": "",
+    "hair": "",
+    "appearance": "",
+    "allies_and_organizations": "",
+    "treasure": ""
+  },
+  "currency": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 0,
+    "pp": 0
+  },
+  "combat": {
+    "inspiration": false,
+    "hit_die_sides": 10,
+    "hit_dice_total": 1,
+    "hit_dice_used": 0,
+    "death_saves": {
+      "successes": 0,
+      "failures": 0
+    },
+    "ac": 10,
+    "weapon_ref": "",
+    "armor_id": "",
+    "darkvision_ft": 0,
+    "divine_sense_active": true
+  },
+  "spellcasting": {
+    "class": "",
+    "ability": "",
+    "save_dc": 0,
+    "attack_bonus": 0,
+    "cantrips": [],
+    "spells": {
+      "1": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "2": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "3": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "4": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "5": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "6": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "7": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "8": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      },
+      "9": {
+        "total": 0,
+        "used": 0,
+        "list": "",
+        "remaining": 0,
+        "refresh": "long_rest"
+      }
+    },
+    "slot_refresh": "long_rest",
+    "known_mode": "",
+    "concentration": {
+      "active": false,
+      "spell_id": "",
+      "source": ""
+    },
+    "known_spells": [],
+    "prepared_spells": [],
+    "spellbook_spells": [],
+    "spellcasting_classes": [],
+    "spellcasting_profile": "none",
+    "preparation_formula": "",
+    "spellbook_enabled": false,
+    "multiclass_caster_level": 0,
+    "preparation_max": 0,
+    "slot_options": [],
+    "known_limit": 0,
+    "cantrip_limit": 0,
+    "spellbook_minimum": 0,
+    "bonus_spell_limit": 0,
+    "bonus_spell_ids": [],
+    "metamagic_choice_limit": 0,
+    "metamagic_options": [],
+    "spell_mastery_limit": 0,
+    "spell_mastery_spells": [],
+    "signature_spell_limit": 0,
+    "signature_spells": [],
+    "sanitized_spell_state": {
+      "invalid_ids_removed": [],
+      "class_filtered_removed": [],
+      "allowed_spell_ids": [
+        "bless",
+        "cure_wounds",
+        "false_life",
+        "fire_bolt",
+        "flamethrower_cone",
+        "frag_grenade",
+        "hellish_rebuke",
+        "hold_person",
+        "lesser_restoration",
+        "light",
+        "longstrider",
+        "mage_armor",
+        "magic_missile",
+        "rail_line",
+        "sacred_flame",
+        "shield",
+        "shield_of_faith"
+      ],
+      "allowed_cantrip_ids": [
+        "fire_bolt",
+        "light",
+        "sacred_flame"
+      ],
+      "allowed_leveled_spell_ids": [
+        "bless",
+        "cure_wounds",
+        "false_life",
+        "flamethrower_cone",
+        "frag_grenade",
+        "hellish_rebuke",
+        "hold_person",
+        "lesser_restoration",
+        "longstrider",
+        "mage_armor",
+        "magic_missile",
+        "rail_line",
+        "shield",
+        "shield_of_faith"
+      ]
+    },
+    "allowed_spell_ids": [
+      "bless",
+      "cure_wounds",
+      "false_life",
+      "fire_bolt",
+      "flamethrower_cone",
+      "frag_grenade",
+      "hellish_rebuke",
+      "hold_person",
+      "lesser_restoration",
+      "light",
+      "longstrider",
+      "mage_armor",
+      "magic_missile",
+      "rail_line",
+      "sacred_flame",
+      "shield",
+      "shield_of_faith"
+    ],
+    "allowed_cantrip_ids": [
+      "fire_bolt",
+      "light",
+      "sacred_flame"
+    ],
+    "allowed_leveled_spell_ids": [
+      "bless",
+      "cure_wounds",
+      "false_life",
+      "flamethrower_cone",
+      "frag_grenade",
+      "hellish_rebuke",
+      "hold_person",
+      "lesser_restoration",
+      "longstrider",
+      "mage_armor",
+      "magic_missile",
+      "rail_line",
+      "shield",
+      "shield_of_faith"
+    ],
+    "pact_magic": {
+      "enabled": false,
+      "slot_level": 0,
+      "slots_total": 0,
+      "refresh": "short_rest",
+      "used": 0,
+      "remaining": 0,
+      "mixed_with_other_slots": false
+    }
+  },
+  "abilities": {
+    "str": 12,
+    "dex": 10,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "proficiencies": {
+    "save_proficiencies": [
+      "cha",
+      "wis"
+    ],
+    "skill_proficiencies": [],
+    "saves": {
+      "wis": true,
+      "cha": true
+    },
+    "skills": {},
+    "languages": [
+      {
+        "name": "Stormen",
+        "speak": true,
+        "read": true,
+        "write": true
+      }
+    ],
+    "other": {
+      "armor": "All armor, shields",
+      "weapons": "Simple weapons, martial weapons",
+      "tools": "",
+      "other": ""
+    }
+  },
+  "stats": {
+    "max_hp": 30,
+    "current_hp": 30,
+    "defense_base": 10,
+    "defense": 10,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "",
+    "armor_id": ""
+  },
+  "resources": {
+    "current_hp": 30,
+    "temp_hp": 0,
+    "damage_resistances": [
+      "cold"
+    ],
+    "hit_dice_remaining": 1
+  },
+  "equipped": {
+    "weapon_id": "",
+    "armor_id": ""
+  },
+  "base_stats": {
+    "max_hp": 30,
+    "ac_base": 10,
+    "ac": 10,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "",
+    "armor_id": "",
+    "weapon": "",
+    "armor": ""
+  },
+  "inventory": [],
+  "notes": [],
+  "status_effects": [],
+  "updated_at": 1773878028584,
+  "hp_log": [
+    {
+      "ts": 1772927428,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772927467,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 1,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772927467,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    }
+  ],
+  "known_spells": [],
+  "prepared_spells": [],
+  "spellbook_spells": [],
+  "bonus_spell_ids": [],
+  "metamagic_options": [],
+  "spell_mastery_spells": [],
+  "signature_spells": []
+}

@@ -1,0 +1,411 @@
+{
+  "character_id": "evanthedestroyer_76f3ca",
+  "player_id": "evan",
+  "display_name": "Evan The destroyer",
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1772914582,
+    "finalized_at": 1772939206
+  },
+  "meta": {
+    "class": "Fighter",
+    "subclass": "",
+    "level": 7,
+    "race": "Sun Elf",
+    "background": "Soldier",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "race_id": "sun elf",
+  "base_race_id": "elf",
+  "lineage_id": "",
+  "class_levels": {
+    "fighter": 7
+  },
+  "trait_ids": [
+    "elf_darkvision",
+    "elf_trance",
+    "elf_keen_senses",
+    "sun_elf_solar_affinity",
+    "sun_elf_radiant_lineage"
+  ],
+  "ability_ids": [
+    "fighter_fighting_style",
+    "fighter_second_wind",
+    "fighter_action_surge"
+  ],
+  "resource_pools": {
+    "second_wind": {
+      "current": 1,
+      "max": 1,
+      "refresh": "short_rest"
+    },
+    "action_surge": {
+      "current": 1,
+      "max": 1,
+      "refresh": "short_rest"
+    }
+  },
+  "feature_state": {
+    "used_this_turn": [],
+    "used_this_round": [],
+    "once_per_turn_flags": {},
+    "once_per_round_flags": {}
+  },
+  "background": {
+    "personality_traits": "",
+    "ideals": "",
+    "bonds": "",
+    "flaws": "",
+    "backstory": ""
+  },
+  "combat_effects": [],
+  "features": {
+    "features_and_traits": "\u2022 Fighting Style\n\u2022 Second Wind\n\u2022 Darkvision\n\u2022 Trance\n\u2022 Keen Senses\n\u2022 Solar Affinity\n\u2022 Radiant Lineage\n\u2022 Action Surge\n\u2022 Extra Attack",
+    "attacks_and_spellcasting": ""
+  },
+  "details": {
+    "age": "",
+    "height": "",
+    "weight": "",
+    "eyes": "",
+    "skin": "",
+    "hair": "",
+    "appearance": "",
+    "allies_and_organizations": "",
+    "treasure": ""
+  },
+  "currency": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 0,
+    "pp": 0
+  },
+  "combat": {
+    "inspiration": false,
+    "hit_die_sides": 10,
+    "hit_dice_total": 7,
+    "hit_dice_used": 1,
+    "death_saves": {
+      "successes": 0,
+      "failures": 0
+    },
+    "ac": 17,
+    "weapon_ref": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857",
+    "darkvision_ft": 60,
+    "action_surge_used": false,
+    "rage_active": false
+  },
+  "spellcasting": {
+    "class": "",
+    "ability": "",
+    "save_dc": 0,
+    "attack_bonus": 0,
+    "cantrips": "",
+    "spells": {
+      "1": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "2": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "3": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "4": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "5": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "6": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "7": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "8": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      },
+      "9": {
+        "total": 0,
+        "used": 0,
+        "list": ""
+      }
+    }
+  },
+  "abilities": {
+    "str": 18,
+    "dex": 18,
+    "con": 14,
+    "int": 17,
+    "wis": 14,
+    "cha": 14
+  },
+  "proficiencies": {
+    "save_proficiencies": [
+      "con",
+      "str"
+    ],
+    "skill_proficiencies": [
+      "animal_handling",
+      "history",
+      "intimidation",
+      "perception"
+    ],
+    "saves": {
+      "str": true,
+      "con": true,
+      "dex": false
+    },
+    "skills": {
+      "perception": true,
+      "intimidation": true,
+      "history": true,
+      "animal_handling": true
+    },
+    "languages": [
+      {
+        "name": "Elvish",
+        "speak": true,
+        "read": true,
+        "write": true
+      },
+      {
+        "name": "Gottish",
+        "speak": true,
+        "read": true,
+        "write": true
+      }
+    ],
+    "other": {
+      "armor": "All armor, shields",
+      "weapons": "Simple weapons, martial weapons",
+      "tools": "",
+      "other": ""
+    }
+  },
+  "stats": {
+    "max_hp": 37,
+    "current_hp": 20,
+    "defense": 17,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857",
+    "defense_base": 10
+  },
+  "resources": {
+    "current_hp": 20,
+    "temp_hp": 0,
+    "damage_resistances": [
+      "radiant"
+    ],
+    "hit_dice_remaining": 6
+  },
+  "equipped": {
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857"
+  },
+  "base_stats": {
+    "max_hp": 37,
+    "ac": 17,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "ff0cef86079b4978b13be76e9ff6e71e",
+    "armor_id": "09a367e917da4cba9a2bd7a3d4b35857",
+    "weapon": "",
+    "armor": "",
+    "ac_base": 10
+  },
+  "inventory": [
+    {
+      "type": "item",
+      "item_id": "09a367e917da4cba9a2bd7a3d4b35857",
+      "name": "Leather Armor",
+      "qty": 1,
+      "weight": 10.0,
+      "icon": "images.jpg",
+      "created_at": 1772914794
+    }
+  ],
+  "notes": [],
+  "status_effects": [],
+  "updated_at": 1772944401836,
+  "hp_log": [
+    {
+      "ts": 1772914864,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 1,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772914865,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 3,
+        "temp_hp": 10,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772914869,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 10,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772922714,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 15,
+        "temp_hp": 10,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772930914,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 10,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931020,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931020,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 30,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931024,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931612,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 1,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931613,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931630,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 1,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931631,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772931671,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    },
+    {
+      "ts": 1772933252,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 30
+      }
+    }
+  ]
+}

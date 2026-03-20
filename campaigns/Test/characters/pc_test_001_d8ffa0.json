@@ -1,0 +1,130 @@
+{
+  "character_id": "pc_test_001_d8ffa0",
+  "player_id": "evan",
+  "display_name": "pc_test_001",
+  "lifecycle": {
+    "status": "active",
+    "created_at": 1772328168,
+    "finalized_at": 1772328225
+  },
+  "meta": {
+    "class": "Fighter",
+    "subclass": "",
+    "level": 1,
+    "race": "Human",
+    "background": "Soldier",
+    "alignment": "",
+    "experience_points": 0
+  },
+  "abilities": {
+    "str": 20,
+    "dex": 20,
+    "con": 20,
+    "int": 20,
+    "wis": 20,
+    "cha": 20
+  },
+  "proficiencies": {
+    "save_proficiencies": [],
+    "skill_proficiencies": [],
+    "languages": []
+  },
+  "stats": {
+    "max_hp": 10,
+    "current_hp": 10,
+    "defense": 10,
+    "movement_ft": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60
+  },
+  "equipped": {
+    "weapon_id": "",
+    "armor_id": ""
+  },
+  "base_stats": {
+    "max_hp": 10,
+    "ac": 10,
+    "movement": 30,
+    "attack_modifier": 0,
+    "vision_ft": 60,
+    "weapon_id": "",
+    "armor_id": "",
+    "weapon": "",
+    "armor": ""
+  },
+  "resources": {
+    "current_hp": 10,
+    "temp_hp": 0
+  },
+  "inventory": [],
+  "status_effects": [],
+  "updated_at": 1772328240,
+  "hp_log": [
+    {
+      "ts": 1772328234,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772328234,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 9,
+        "temp_hp": 0,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772328236,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772328238,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 4,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772328238,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 5,
+        "max_hp": 10
+      }
+    },
+    {
+      "ts": 1772328240,
+      "delta": 0,
+      "source": "player_edit",
+      "reason": "sheet_patch",
+      "after": {
+        "current_hp": 10,
+        "temp_hp": 0,
+        "max_hp": 10
+      }
+    }
+  ]
+}

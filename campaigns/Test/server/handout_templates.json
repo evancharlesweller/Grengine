@@ -1,0 +1,23 @@
+[
+  {
+    "template_id": "761113c3d9724de5969601571d63c032",
+    "title": "Test",
+    "kind": "handout",
+    "text": "Test Handout",
+    "image_url": "",
+    "payload": {},
+    "updated_at": 1772475713
+  },
+  {
+    "template_id": "f63df88c39e24361a325a82b8438ce58",
+    "title": "Test Language handout",
+    "kind": "handout",
+    "text": "Testing languages",
+    "image_url": "",
+    "payload": {
+      "language": "Elvish",
+      "unreadable_mode": "scramble"
+    },
+    "updated_at": 1772659765
+  }
+]

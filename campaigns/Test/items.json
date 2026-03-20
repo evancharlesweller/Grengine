@@ -1,0 +1,136 @@
+{
+  "weapons": [
+    {
+      "item_id": "c4b14aa2e7d046b192ce2d0830170406",
+      "name": "Pipe Pistol",
+      "category": "weapon",
+      "weapon_type": "ranged",
+      "damage": "1d8",
+      "attack_bonus": 0,
+      "range_ft": 30,
+      "ammo": "9mm",
+      "properties": [
+        "weapon",
+        "ranged",
+        "nonmagical"
+      ],
+      "weight": 3,
+      "icon": "",
+      "damage_type": "piercing",
+      "tags": [
+        "weapon",
+        "ranged",
+        "nonmagical"
+      ],
+      "material": "steel",
+      "magical": false,
+      "silvered": false
+    },
+    {
+      "item_id": "ff0cef86079b4978b13be76e9ff6e71e",
+      "name": "Combat Knife",
+      "category": "weapon",
+      "weapon_type": "melee",
+      "damage": "1d6",
+      "attack_bonus": 0,
+      "range_ft": 5,
+      "ammo": "",
+      "properties": [
+        "weapon",
+        "melee",
+        "nonmagical"
+      ],
+      "weight": 1,
+      "icon": "icons/TestToken.png",
+      "damage_type": "piercing",
+      "tags": [
+        "weapon",
+        "melee",
+        "nonmagical"
+      ],
+      "material": "steel",
+      "magical": false,
+      "silvered": false
+    },
+    {
+      "item_id": "6a2fbf5966854e1da68442b39e69037a",
+      "name": "Pipe Rifle",
+      "category": "weapon",
+      "weapon_type": "ranged",
+      "damage": "2d8",
+      "attack_bonus": 0,
+      "range_ft": 60,
+      "ammo": "",
+      "properties": [
+        "weapon",
+        "ranged",
+        "nonmagical"
+      ],
+      "weight": 8,
+      "icon": "",
+      "damage_type": "piercing",
+      "tags": [
+        "weapon",
+        "ranged",
+        "nonmagical"
+      ],
+      "material": "steel",
+      "magical": false,
+      "silvered": false
+    },
+    {
+      "item_id": "unarmed",
+      "name": "Unarmed Strike",
+      "category": "weapon",
+      "weapon_type": "melee",
+      "damage": "1d4",
+      "attack_bonus": 0,
+      "range_ft": 5,
+      "ammo": "",
+      "properties": [
+        "unarmed",
+        "weapon",
+        "melee",
+        "nonmagical"
+      ],
+      "weight": 0,
+      "icon": "",
+      "damage_type": "bludgeoning",
+      "tags": [
+        "weapon",
+        "melee",
+        "nonmagical"
+      ],
+      "material": "",
+      "magical": false,
+      "silvered": false
+    }
+  ],
+  "armors": [
+    {
+      "item_id": "09a367e917da4cba9a2bd7a3d4b35857",
+      "name": "Leather Armor",
+      "category": "armor",
+      "armor_type": "light",
+      "ac_bonus": 3,
+      "properties": [],
+      "weight": 10,
+      "icon": "images.jpg"
+    }
+  ],
+  "health_items": [
+    {
+      "item_id": "301450b12fd9421e90d5737cdda5fb14",
+      "name": "Stimpak",
+      "category": "consumable",
+      "consumable_type": "healing",
+      "use": {
+        "kind": "heal_flat",
+        "amount": 10
+      },
+      "weight": 0.1,
+      "icon": ""
+    }
+  ],
+  "misc_items": []
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "name": "9mm Pistol",
+    "type": "weapon",
+    "damage": 6,
+    "range": "30 ft",
+    "icon": "pistol.png"
+  },
+  {
+    "name": "Leather Jacket",
+    "type": "armor",
+    "ac_bonus": 2,
+    "icon": "jacket.png"
+  }
+]
