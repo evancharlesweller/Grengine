@@ -4460,6 +4460,51 @@ def _refresh_resource_pools_for_rest(sheet: Dict[str, Any], rest_type: str) -> N
             pool["current"] = int(pool.get("max", pool.get("current", 0)) or 0)
 
 
+class FeatStateToggleRequest(BaseModel):
+    feat_id: str
+    feat_state: Dict[str, Any] = Field(default_factory=dict)
+
+
+@app.post("/api/campaigns/{campaign_id}/characters/me/feat_state")
+async def api_set_feat_state_mine(campaign_id: str, req: FeatStateToggleRequest, sess=Depends(require_session)):
+    """Set runtime feat_state for an active feat — e.g. enable/disable GWM or Sharpshooter toggle.
+
+    Only the feat_state dict for the given feat_id is updated; the feat must already
+    be present on sheet["feats"] for this endpoint to accept the request.
+    """
+    char_id = _require_active_character(sess)
+    sheet = load_character_sheet(campaign_id, char_id)
+    if not sheet:
+        raise HTTPException(status_code=404, detail="Character sheet not found")
+    sheet = ensure_sheet_minimum(sheet, char_id)
+    if (sheet.get("player_id") or "").strip() != sess["player_id"]:
+        raise HTTPException(status_code=403, detail="Character does not belong to this player")
+
+    feat_id = str(req.feat_id or "").strip().lower()
+    if not feat_id:
+        raise HTTPException(status_code=400, detail="feat_id required")
+
+    feats = [str(x).strip().lower() for x in (sheet.get("feats") or []) if str(x).strip()]
+    if feat_id not in feats:
+        raise HTTPException(status_code=400, detail="Feat not present on character sheet")
+
+    feat_state_map = sheet.setdefault("feat_state", {}) if isinstance(sheet.get("feat_state"), dict) else {}
+    sheet["feat_state"] = feat_state_map
+
+    incoming = req.feat_state if isinstance(req.feat_state, dict) else {}
+    existing = feat_state_map.get(feat_id) if isinstance(feat_state_map.get(feat_id), dict) else {}
+    existing.update(incoming)
+    feat_state_map[feat_id] = existing
+
+    save_character_sheet(campaign_id, char_id, sheet)
+
+    return {
+        "ok": True,
+        "feat_id": feat_id,
+        "feat_state": feat_state_map.get(feat_id, {}),
+    }
+
+
 @app.post("/api/campaigns/{campaign_id}/abilities/mine/use")
 async def api_use_ability_mine(campaign_id: str, req: UseAbilityRequest, sess=Depends(require_session)):
     char_id = _require_active_character(sess)
