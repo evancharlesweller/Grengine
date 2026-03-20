@@ -287,6 +287,8 @@ const FEATURE_LABELS = {
   paladin_divine_sense: {name: 'Divine Sense', desc: 'Track a use of Divine Sense. Detection specifics remain player and DM interpreted until spell/supernatural state handling expands.'},
   paladin_lay_on_hands: {name: 'Lay on Hands', desc: 'You have a pool of healing that can be spent to restore hit points. Choose how many points to spend when you use it. The pool refreshes on a long rest.'},
   paladin_cleansing_touch: {name: 'Cleansing Touch', desc: 'Track a use of Cleansing Touch to end one spell on yourself or a willing creature. Full spell-state removal will come with deeper spell integration.'},
+  great_weapon_master: {name: 'Great Weapon Master', desc: 'Toggle the -5 to hit / +10 damage trade-off for heavy melee weapon attacks. When enabled the engine applies the penalty/bonus automatically during attack resolution.'},
+  sharpshooter: {name: 'Sharpshooter', desc: 'Toggle the -5 to hit / +10 damage trade-off for ranged weapon attacks. When enabled the engine applies the penalty/bonus automatically during attack resolution.'},
   fighter_action_surge: {name: 'Action Surge', desc: 'Push yourself beyond your normal limits for a moment. Full turn-economy enforcement is not wired yet.'},
   fighter_indomitable: {name: 'Indomitable', desc: 'Reroll a failed saving throw. This runtime currently tracks usage, but does not yet inject the reroll into save resolution automatically.'},
   rogue_sneak_attack: {name: 'Sneak Attack', desc: 'Once per turn, you deal extra damage when you hit with a qualifying finesse or ranged attack under the normal Sneak Attack conditions. The engine now adds this automatically when the conditions are met.'},
@@ -1110,6 +1112,24 @@ function renderCombatEffects(sheet) {
     });
   }
 
+  // Feat active-toggle status indicators
+  const featState2 = (sheet && sheet.feat_state && typeof sheet.feat_state === "object") ? sheet.feat_state : {};
+  const feats2 = Array.isArray(sheet && sheet.feats) ? sheet.feats : [];
+  if (feats2.includes("great_weapon_master") && featState2.great_weapon_master && featState2.great_weapon_master.enabled) {
+    explicitEffects.unshift({
+      name: "Great Weapon Master",
+      source: "feat",
+      summary: "-5 to hit / +10 damage active on heavy melee weapon attacks.",
+    });
+  }
+  if (feats2.includes("sharpshooter") && featState2.sharpshooter && featState2.sharpshooter.enabled) {
+    explicitEffects.unshift({
+      name: "Sharpshooter",
+      source: "feat",
+      summary: "-5 to hit / +10 damage active on ranged weapon attacks.",
+    });
+  }
+
   if (!explicitEffects.length) {
     host.textContent = "No active effects.";
     return;
@@ -1845,6 +1865,38 @@ function renderAbilityActions(sheet) {
   if (abilityIds.includes("paladin_cleansing_touch")) {
     const p = pools.cleansing_touch || {};
     supported.push({ id: "paladin_cleansing_touch", name: "Cleansing Touch", desc: "Track a use of Cleansing Touch.", state: `Uses: ${Number(p.current ?? 0)}/${Number(p.max ?? 0)}${p.refresh ? ` (${humanizeFeatureId(p.refresh)})` : ""}`, btn: "Use" });
+  }
+
+  // --- Feat active toggles (GWM, Sharpshooter) ---
+  // These read from sheet.feats[] and sheet.feat_state[feat_id].enabled
+  // The combat engine already reads feat_state on the server; this just gives the player the UX to flip it.
+  const feats = Array.isArray(sheet.feats) ? sheet.feats : [];
+  const featState = (sheet.feat_state && typeof sheet.feat_state === "object") ? sheet.feat_state : {};
+
+  if (feats.includes("great_weapon_master")) {
+    const enabled = !!(featState.great_weapon_master && featState.great_weapon_master.enabled);
+    supported.push({
+      id: "feat_toggle_great_weapon_master",
+      name: "Great Weapon Master",
+      desc: "Toggle -5 to hit / +10 damage for heavy melee weapon attacks. The engine reads this during attack resolution.",
+      state: enabled ? "Active — -5 to hit, +10 damage" : "Inactive — normal attack rolls",
+      btn: enabled ? "Disable" : "Enable",
+      _featToggle: "great_weapon_master",
+      _featEnabled: enabled,
+    });
+  }
+
+  if (feats.includes("sharpshooter")) {
+    const enabled = !!(featState.sharpshooter && featState.sharpshooter.enabled);
+    supported.push({
+      id: "feat_toggle_sharpshooter",
+      name: "Sharpshooter",
+      desc: "Toggle -5 to hit / +10 damage for ranged weapon attacks. The engine reads this during attack resolution.",
+      state: enabled ? "Active — -5 to hit, +10 damage" : "Inactive — normal attack rolls",
+      btn: enabled ? "Disable" : "Enable",
+      _featToggle: "sharpshooter",
+      _featEnabled: enabled,
+    });
   }
 
   for (const ab of supported) {
