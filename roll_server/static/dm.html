@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grengine DM • Roll Audit</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">Grengine DM</div>
+      <div class="status-pill online">Roll Audit</div>
+    </div>
+
+    <div class="grid-1">
+      <div class="card">
+        <h2>Roll Audit</h2>
+        <div class="muted">Newest-first. Reads the server's append-only JSONL log.</div>
+
+        <div class="row gap">
+          <div class="field">
+            <label>Campaign</label>
+            <input id="campaignId" type="text" placeholder="Test" />
+          </div>
+          <div class="field">
+            <label>Player</label>
+            <input id="playerId" type="text" placeholder="(optional)" />
+          </div>
+          <div class="field">
+            <label>Character</label>
+            <input id="characterId" type="text" placeholder="(optional)" />
+          </div>
+          <div class="field">
+            <label>Query</label>
+            <input id="q" type="text" placeholder="search JSON..." />
+          </div>
+          <div class="field">
+            <label>Limit</label>
+            <input id="limit" type="number" value="200" min="1" max="2000" />
+          </div>
+        </div>
+
+        <div class="row gap" style="align-items:end; margin-top: 12px;">
+          <button id="refreshBtn" class="btn">Refresh</button>
+          <button id="autoBtn" class="btn">Auto: Off</button>
+          <a id="exportLink" class="btn" href="#" download>Download JSONL</a>
+          <div class="muted" id="meta"></div>
+        </div>
+
+        <div style="margin-top: 12px; overflow:auto; max-height: 70vh;">
+          <table class="table" id="tbl">
+            <thead>
+              <tr>
+                <th style="width:160px;">Time</th>
+                <th style="width:220px;">Type</th>
+                <th style="width:140px;">Player</th>
+                <th style="width:160px;">Character</th>
+                <th>Summary</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/dm.js"></script>
+</body>
+</html>

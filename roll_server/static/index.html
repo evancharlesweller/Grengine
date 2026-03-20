@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grengine Player</title>
+  <link rel="stylesheet" href="/static/app.css?v=1021" />
+</head>
+<body>
+  <div class="wrap">
+    <header id="topHeader" class="header">
+      <div>
+        <h1>Grengine Player</h1>
+        <div class="sub mono" id="campaignMeta">Campaign: — • Player: — • Character: —</div>
+      </div>
+      <div class="headRight">
+        <div id="status" class="status muted">Idle</div>
+        <div id="netStatus" class="net netBad mono">Offline</div>
+        <button id="btnLogoutTop" class="btn ghost small hidden" type="button">Logout</button>
+      </div>
+    </header>
+
+    <!-- LOGIN SCREEN -->
+    <section id="loginScreen" class="card screen">
+      <h2>Login</h2>
+
+      <div class="row">
+        <label class="lbl" for="playerId">Player ID</label>
+        <input id="playerId" class="inp" placeholder="evan" autocomplete="username" />
+
+        <label class="lbl" for="pin">PIN</label>
+        <input id="pin" class="inp" type="password" placeholder="1234" autocomplete="current-password" />
+
+        <button id="btnLogin" class="btn ok" type="button">Login</button>
+      </div>
+
+      <div class="row">
+        <label class="lbl" for="characterSelect">Character</label>
+        <select id="characterSelect" class="inp" disabled></select>
+
+        <button id="btnEnter" class="btn" type="button" disabled>Enter</button>
+        <button id="btnCreateChar" class="btn ghost" type="button" disabled>Create</button>
+        <button id="btnLogout" class="btn ghost" type="button" disabled>Logout</button>
+      </div>
+
+      <div id="createCharPanel" class="card hidden" style="margin-top:12px;">
+        <h3 style="margin:0 0 8px 0;">Create Character</h3>
+
+        <div class="row">
+          <label class="lbl" for="ccDisplayName">Name</label>
+          <input id="ccDisplayName" class="inp" placeholder="Aria" />
+        </div>
+
+        <div class="row">
+          <label class="lbl" for="ccCharacterId">Character ID (optional)</label>
+          <input id="ccCharacterId" class="inp" placeholder="aria_pc (leave blank to auto)" />
+        </div>
+
+        <div class="row">
+          <label class="lbl" for="ccClass">Class</label>
+          <input id="ccClass" class="inp" placeholder="Fighter" />
+        </div>
+
+        <div class="row">
+          <label class="lbl" for="ccRace">Race</label>
+          <input id="ccRace" class="inp" placeholder="Human" />
+        </div>
+
+        <div class="row">
+          <label class="lbl" for="ccBackground">Background</label>
+          <input id="ccBackground" class="inp" placeholder="Soldier" />
+        </div>
+
+        <div class="row">
+          <label class="lbl" for="ccLevel">Level</label>
+          <input id="ccLevel" class="inp" type="number" min="1" max="20" step="1" value="1" />
+        </div>
+
+        <div class="row">
+          <label class="lbl" for="ccMaxHp">Max HP</label>
+          <input id="ccMaxHp" class="inp" type="number" min="1" max="999" step="1" value="10" />
+        </div>
+
+        <div class="row">
+          <button id="btnCreateCharConfirm" class="btn" type="button">Create</button>
+          <button id="btnCreateCharCancel" class="btn ghost" type="button">Cancel</button>
+          <div class="hint mono">You can fill the rest in the sheet editor after entering.</div>
+        </div>
+      </div>
+
+      <div class="hint mono">
+        Pins live in: campaigns/&lt;campaign&gt;/server/pins.json
+      </div>
+    </section>
+
+    <!-- APP SCREEN -->
+    <div id="appScreen" class="hidden">
+      <button id="btnLogoutFloat" class="btn ghost small floatingLogout hidden" type="button">Logout</button>
+
+      <section class="mainGrid threeColLayout">
+        <!-- LEFT COLUMN -->
+        <section class="columnStack leftCol">
+          <section id="panelSheet" class="card">
+            <h2>Character Sheet</h2>
+
+            <div class="sheetGridIdentity">
+              <div class="field wide">
+                <label class="lbl">Name</label>
+                <input id="sheetName" class="inp" placeholder="Evan" />
+              </div>
+
+              <div class="field small">
+                <label class="lbl">Level</label>
+                <input id="sheetLevel" class="inp mono tiny" type="number" min="1" max="20" step="1" />
+              </div>
+
+              <div class="field badge">
+                <div class="lbl">Prof Bonus</div>
+                <div class="statBadge mono" id="sheetProfBonus">—</div>
+              </div>
+            </div>
+
+            <div class="sheetGridMeta">
+              <div class="field">
+                <label class="lbl">Class</label>
+                <input id="sheetClass" class="inp" placeholder="Fighter" />
+              </div>
+              <div class="field">
+                <label class="lbl">Race</label>
+                <input id="sheetRace" class="inp" placeholder="Human" />
+              </div>
+              <div class="field">
+                <label class="lbl">Background</label>
+                <input id="sheetBackground" class="inp" placeholder="Soldier" />
+              </div>
+            </div>
+
+            <div class="row rowBlock hpSection">
+              <label class="lbl">HP</label>
+              <div class="hpgridRow">
+                <div class="hpbox">
+                  <div class="tag">current</div>
+                  <input id="sheetCurHp" class="inp mono smallInp" type="number" min="0" step="1" />
+                </div>
+                <div class="hpbox">
+                  <div class="tag">temp</div>
+                  <input id="sheetTempHp" class="inp mono smallInp" type="number" min="0" step="1" />
+                </div>
+                <div class="hpbox">
+                  <div class="tag">max</div>
+                  <input id="sheetMaxHp" class="inp mono smallInp" type="number" min="1" max="999" step="1" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Abilities</label>
+              <div class="abilgrid">
+                <div class="abil">
+                  <div class="tag">STR</div>
+                  <input id="abStr" class="inp mono abilInp" type="number" min="1" max="30" step="1" />
+                  <div class="mono small" id="modStr">—</div>
+                </div>
+                <div class="abil">
+                  <div class="tag">DEX</div>
+                  <input id="abDex" class="inp mono abilInp" type="number" min="1" max="30" step="1" />
+                  <div class="mono small" id="modDex">—</div>
+                </div>
+                <div class="abil">
+                  <div class="tag">CON</div>
+                  <input id="abCon" class="inp mono abilInp" type="number" min="1" max="30" step="1" />
+                  <div class="mono small" id="modCon">—</div>
+                </div>
+                <div class="abil">
+                  <div class="tag">INT</div>
+                  <input id="abInt" class="inp mono abilInp" type="number" min="1" max="30" step="1" />
+                  <div class="mono small" id="modInt">—</div>
+                </div>
+                <div class="abil">
+                  <div class="tag">WIS</div>
+                  <input id="abWis" class="inp mono abilInp" type="number" min="1" max="30" step="1" />
+                  <div class="mono small" id="modWis">—</div>
+                </div>
+                <div class="abil">
+                  <div class="tag">CHA</div>
+                  <input id="abCha" class="inp mono abilInp" type="number" min="1" max="30" step="1" />
+                  <div class="mono small" id="modCha">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Saves</label>
+              <div class="skillgrid" id="saveGrid"></div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Skills</label>
+              <div class="skillgrid" id="skillGrid"></div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Proficiencies</label>
+              <div class="profsGrid">
+                <div class="field">
+                  <label class="lbl">Armor</label>
+                  <input id="profArmor" class="inp" placeholder="Light, Medium, Shields" />
+                </div>
+                <div class="field">
+                  <label class="lbl">Weapons</label>
+                  <input id="profWeapons" class="inp" placeholder="Simple weapons" />
+                </div>
+                <div class="field">
+                  <label class="lbl">Tools</label>
+                  <input id="profTools" class="inp" placeholder="Thieves' tools" />
+                </div>
+                <div class="field">
+                  <label class="lbl">Other</label>
+                  <input id="profOther" class="inp" placeholder="Vehicles (land)" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Languages</label>
+              <div>
+                <div id="langList" class="langList"></div>
+                <div class="row">
+                  <input id="langNewName" class="inp" placeholder="Add language (e.g., Elvish)" />
+                  <button id="btnLangAdd" class="btn" type="button" disabled>Add</button>
+                </div>
+                <div class="hint mono">Speak / Read / Write control readable handouts later.</div>
+              </div>
+            </div>
+
+            <details class="sheetCollapse">
+              <summary>Features, Background &amp; Details</summary>
+
+              <div class="sectionBlock">
+                <div class="sectionTitle">Features</div>
+                <div id="featTraits" class="featurePanel" aria-live="polite"></div>
+                <div class="hint">Generated from your class, race, and resource data so players can read what each feature does.</div>
+              </div>
+
+              <div class="sectionBlock">
+                <div class="sectionTitle">Background</div>
+                <div class="bgGrid2">
+                  <div class="field">
+                    <label class="lbl">Personality Traits</label>
+                    <textarea id="bgTraits" class="inp area" rows="3"></textarea>
+                  </div>
+                  <div class="field">
+                    <label class="lbl">Ideals</label>
+                    <textarea id="bgIdeals" class="inp area" rows="3"></textarea>
+                  </div>
+                  <div class="field">
+                    <label class="lbl">Bonds</label>
+                    <textarea id="bgBonds" class="inp area" rows="3"></textarea>
+                  </div>
+                  <div class="field">
+                    <label class="lbl">Flaws</label>
+                    <textarea id="bgFlaws" class="inp area" rows="3"></textarea>
+                  </div>
+                  <div class="field wide">
+                    <label class="lbl">Backstory</label>
+                    <textarea id="bgBackstory" class="inp area" rows="5"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sectionBlock">
+                <div class="sectionTitle">Details</div>
+                <div class="detailsGrid">
+                  <div class="field small"><label class="lbl">Age</label><input id="dtAge" class="inp" /></div>
+                  <div class="field small"><label class="lbl">Height</label><input id="dtHeight" class="inp" /></div>
+                  <div class="field small"><label class="lbl">Weight</label><input id="dtWeight" class="inp" /></div>
+                  <div class="field small"><label class="lbl">Eyes</label><input id="dtEyes" class="inp" /></div>
+                  <div class="field small"><label class="lbl">Skin</label><input id="dtSkin" class="inp" /></div>
+                  <div class="field small"><label class="lbl">Hair</label><input id="dtHair" class="inp" /></div>
+                  <div class="field wide"><label class="lbl">Appearance</label><textarea id="dtAppearance" class="inp area" rows="2"></textarea></div>
+                  <div class="field wide"><label class="lbl">Allies / Organizations</label><textarea id="dtAllies" class="inp area" rows="2"></textarea></div>
+                  <div class="field wide"><label class="lbl">Treasure</label><textarea id="dtTreasure" class="inp area" rows="2"></textarea></div>
+                </div>
+              </div>
+            </details>
+
+            <div class="row">
+              <label class="lbl">Edit</label>
+              <button id="btnFinalize" class="btn ok" type="button" disabled>Finalize</button>
+              <div class="hint mono">Finalize locks core fields (creation-only) and keeps HP editable.</div>
+            </div>
+
+            <div class="hint mono" id="sheetSaveOut">—</div>
+          </section>
+        </section>
+
+        <!-- MIDDLE COLUMN -->
+        <section class="columnStack midCol">
+          <section id="panelRolls" class="card">
+            <h2>Rolls</h2>
+
+            <div id="rollRequestBanner" class="banner hidden">
+              <div class="bannerTitle mono" id="rollRequestTitle">—</div>
+              <div class="bannerMeta mono" id="rollRequestMeta">—</div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Expected</label>
+              <div class="mono" id="expectedOut">—</div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Free roll</label>
+              <select id="freeSides" class="inp">
+                <option value="4">d4</option>
+                <option value="6">d6</option>
+                <option value="8">d8</option>
+                <option value="10">d10</option>
+                <option value="12">d12</option>
+                <option value="20" selected>d20</option>
+                <option value="100">d100</option>
+              </select>
+              <input id="freeCount" class="inp mono" type="number" min="1" step="1" value="1" />
+            </div>
+
+            <div class="hint mono">
+              Free rolls are only enabled when the server is not requesting a roll.
+            </div>
+
+            <div class="row">
+              <label class="lbl">Action</label>
+              <button id="btnRoll" class="btn" type="button">Roll</button>
+            </div>
+
+            <div class="out">
+              <div class="outrow">
+                <div class="tag">rolls</div>
+                <div id="rollOut" class="mono">—</div>
+              </div>
+              <div class="outrow">
+                <div class="tag">chosen</div>
+                <div id="chosenOut" class="mono">—</div>
+              </div>
+            </div>
+
+            <div class="hint mono">
+              When the system is waiting for you, your next roll is submitted automatically.
+            </div>
+          </section>
+
+          <section id="panelCombat" class="card">
+            <h2>Combat</h2>
+
+            <div class="row">
+              <label class="lbl">Status</label>
+              <div class="mono" id="sheetStatusOut">—</div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Active Effects</label>
+              <div id="effectsList" class="effectsList mono">No active effects.</div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Combat Stats</label>
+              <div class="combatGrid combatGridTight">
+                <div class="field small">
+                  <label class="lbl">AC</label>
+                  <div class="statBadge mono" id="outAC">—</div>
+                </div>
+                <div class="field small">
+                  <label class="lbl">Init</label>
+                  <div class="statBadge mono" id="outInit">—</div>
+                </div>
+                <div class="field small">
+                  <label class="lbl">Speed</label>
+                  <div class="statBadge mono" id="outSpeed">—</div>
+                </div>
+                <div class="field small">
+                  <label class="lbl">Attacks / Action</label>
+                  <div class="statBadge mono" id="outAttacksPerAction">—</div>
+                </div>
+                <div class="field badge">
+                  <div class="lbl">Passive Perception</div>
+                  <div class="statBadge mono" id="outPassivePerception">—</div>
+                </div>
+                <div class="field badge">
+                  <div class="lbl">Inspiration</div>
+                  <label class="toggleLine"><input id="combatInspiration" type="checkbox" /> <span class="mono">on</span></label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="panelActions" class="card">
+            <h2>Ability Actions</h2>
+            <div id="abilityActions" class="abilityActionList"></div>
+            <div class="hint">Usable class abilities appear here when they have an implemented runtime.</div>
+          </section>
+
+          <section id="panelSpellcasting" class="card hidden">
+            <h2>Spellcasting</h2>
+
+            <div class="spellcastingShell">
+              <div class="spellGrid spellGridReadOnly">
+                <div class="field">
+                  <label class="lbl">Class</label>
+                  <div id="scClass" class="inp staticField mono">—</div>
+                </div>
+                <div class="field">
+                  <label class="lbl">Ability</label>
+                  <div id="scAbility" class="inp staticField mono">—</div>
+                </div>
+                <div class="field small">
+                  <label class="lbl">Save DC</label>
+                  <div id="scDc" class="inp staticField mono">—</div>
+                </div>
+                <div class="field small">
+                  <label class="lbl">Atk Bonus</label>
+                  <div id="scAtk" class="inp staticField mono">—</div>
+                </div>
+              </div>
+
+              <div class="spellManagerTop">
+                <div class="sectionBlock spellSummaryBlock">
+                  <div class="sectionTitle">Spell Summary</div>
+                  <div id="spellSummaryCards" class="spellSummaryCards"></div>
+                </div>
+
+                <div class="sectionBlock spellManagerBlock">
+                  <div class="sectionTitle">Spell Manager</div>
+                  <div id="spellManagerActions" class="spellManagerActions"></div>
+                  <div id="spellManagerStatus" class="hint mono spellManagerStatusBox">—</div>
+                </div>
+              </div>
+
+              <div class="sectionBlock spellLibraryWrap">
+                <div class="sectionTitle">Spell Library</div>
+                <div id="spellLibrary" class="featurePanel" aria-live="polite"></div>
+                <div class="hint">
+                  Normal play is read-only. Use the manager buttons during character creation, level up,
+                  preparation changes, or other legal spell-learning flows.
+                </div>
+              </div>
+
+              <div class="spellSlots" id="spellSlots"></div>
+              <div id="spellActions" class="spellActions"></div>
+            </div>
+          </section>
+        </section>
+
+        <!-- RIGHT COLUMN -->
+        <section class="columnStack rightCol">
+          <section id="panelShortRest" class="card hidden">
+            <h2>Short Rest</h2>
+            <div id="shortRestPanel"></div>
+          </section>
+
+          <section id="panelLevelUp" class="card hidden">
+            <h2>Level Up</h2>
+            <div id="levelUpPanel"></div>
+          </section>
+
+          <section id="panelRecovery" class="card">
+            <h2>Recovery</h2>
+
+            <div class="recoveryGrid">
+              <div class="recoveryBlock">
+                <div class="sectionTitle">Hit Dice</div>
+                <div class="recoveryFields">
+                  <div class="field miniField">
+                    <label class="lbl">Sides</label>
+                    <input id="hitDieSides" class="inp mono tiny" type="number" min="1" max="20" step="1" />
+                  </div>
+                  <div class="field miniField">
+                    <label class="lbl">Total</label>
+                    <input id="hitDiceTotal" class="inp mono tiny" type="number" min="0" max="99" step="1" />
+                  </div>
+                  <div class="field miniField">
+                    <label class="lbl">Used</label>
+                    <input id="hitDiceUsed" class="inp mono tiny" type="number" min="0" max="99" step="1" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="recoveryBlock">
+                <div class="sectionTitle">Death Saves</div>
+                <div class="recoveryFields">
+                  <div class="field miniField">
+                    <label class="lbl">Success</label>
+                    <input id="dsSucc" class="inp mono tiny" type="number" min="0" max="3" step="1" />
+                  </div>
+                  <div class="field miniField">
+                    <label class="lbl">Fail</label>
+                    <input id="dsFail" class="inp mono tiny" type="number" min="0" max="3" step="1" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="panelInventory" class="card">
+            <h2>Inventory</h2>
+
+            <div class="inventoryTopStats">
+              <div class="invStat mono" id="invWeightOut">Weight: —</div>
+              <div class="invStat mono" id="invEncOut">Encumbrance: —</div>
+            </div>
+
+            <div class="sectionBlock compactSection">
+              <div class="sectionTitle">Currency</div>
+              <div class="currencyGrid currencyGridCompact">
+                <div class="coin"><div class="tag">CP</div><input id="curCp" class="inp mono tiny" type="number" min="0" step="1" /></div>
+                <div class="coin"><div class="tag">SP</div><input id="curSp" class="inp mono tiny" type="number" min="0" step="1" /></div>
+                <div class="coin"><div class="tag">GP</div><input id="curGp" class="inp mono tiny" type="number" min="0" step="1" /></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Equipped</label>
+              <select id="equipWeapon" class="inp"></select>
+              <select id="equipArmor" class="inp"></select>
+            </div>
+
+            <div class="row">
+              <label class="lbl">Add item</label>
+              <select id="invAddSelect" class="inp"></select>
+              <input id="invAddQty" class="inp mono" type="number" min="1" step="1" value="1" />
+              <button id="btnInvAdd" class="btn" type="button" disabled>Add</button>
+            </div>
+
+            <div id="invTable" class="invTable">—</div>
+          </section>
+
+          <section id="panelNotes" class="card">
+            <h2>Notes</h2>
+
+            <div class="handoutsBlock">
+              <div class="sectionTitle">Handouts</div>
+              <div id="handoutList" class="noteList compactNoteList">—</div>
+
+              <div id="handoutView" class="handoutView hidden">
+                <div class="mono" id="handoutTitle">—</div>
+                <div id="handoutBody" class="handoutBody"></div>
+                <div class="row" style="margin-top:10px;">
+                  <label class="lbl">Action</label>
+                  <button id="handoutClose" class="btn">Close</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="sectionBlock">
+              <div class="sectionTitle">Your Notes</div>
+
+              <div class="notesEditorStack">
+                <div id="noteList" class="noteList compactNoteList">—</div>
+
+                <div class="notesFormStack">
+                  <div class="field">
+                    <label class="lbl">Title</label>
+                    <input id="noteTitle" class="inp" placeholder="Short title" />
+                  </div>
+
+                  <div class="field">
+                    <label class="lbl">Text</label>
+                    <textarea id="noteText" class="inp notesTextArea" rows="8" placeholder="Write notes here..."></textarea>
+                  </div>
+
+                  <div class="row">
+                    <label class="lbl">Action</label>
+                    <button id="btnNewNote" class="btn" type="button" disabled>New</button>
+                    <button id="btnSaveNote" class="btn" type="button" disabled>Save</button>
+                    <button id="btnDeleteNote" class="btn danger" type="button" disabled>Delete</button>
+                  </div>
+
+                  <div class="hint mono" id="noteSaveOut">—</div>
+                  <div class="hint mono" id="noteEditingOut">—</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <div id="levelUpModalOverlay" class="modalOverlay hidden">
+        <div class="modalCard levelUpModalCard">
+          <div class="modalTitle">Level Up</div>
+          <div id="levelUpModalBody"></div>
+        </div>
+      </div>
+
+      <section class="card">
+        <h2>Activity</h2>
+        <details id="activityDetails" open>
+          <summary class="mono">Show / hide activity feed</summary>
+
+          <div id="noFeed" class="empty">No activity yet.</div>
+          <div id="feed" class="list"></div>
+
+          <div class="hint mono" style="margin-top:10px;">Audit log (roll requests, submissions, pending attacks)</div>
+          <button id="btnExportAudit" class="btn ghost small" type="button" style="margin:8px 0;">Export audit JSON</button>
+          <div id="logList" class="mono log"></div>
+        </details>
+      </section>
+    </div>
+  </div>
+
+  <div id="spellChoiceModal" class="modal hidden" aria-hidden="true">
+    <div class="modalCard spellChoiceCard">
+      <div class="modalHead">
+        <div>
+          <div id="spellChoiceTitle" class="sectionTitle">Manage Spells</div>
+          <div id="spellChoiceSubtitle" class="hint mono">—</div>
+        </div>
+        <button id="btnSpellChoiceClose" class="btn tiny" type="button">Close</button>
+      </div>
+
+      <div class="spellChoiceToolbar">
+        <input id="spellChoiceSearch" class="inp" placeholder="Search spells by name or id" />
+        <select id="spellChoiceLevelFilter" class="inp mono">
+          <option value="">All levels</option>
+          <option value="0">Cantrips</option>
+          <option value="1">Level 1</option>
+          <option value="2">Level 2</option>
+          <option value="3">Level 3</option>
+          <option value="4">Level 4</option>
+          <option value="5">Level 5</option>
+          <option value="6">Level 6</option>
+          <option value="7">Level 7</option>
+          <option value="8">Level 8</option>
+          <option value="9">Level 9</option>
+        </select>
+      </div>
+
+      <div id="spellChoiceCount" class="hint mono">—</div>
+      <div id="spellChoiceList" class="spellChoiceList"></div>
+
+      <div class="modalFoot">
+        <button id="btnSpellChoiceSave" class="btn ok" type="button">Save Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js?v=1021"></script>
+</body>
+</html>

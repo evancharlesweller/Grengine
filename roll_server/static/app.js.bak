@@ -1,0 +1,2425 @@
+let timer = null;
+
+let lastRoll = null;
+let activeRollRequest = null;
+let armedBuffer = []; // collects rolls for advantage/disadvantage requests
+let needDamage = null; // legacy NEED_DAMAGE message context
+let activePendingAttack = null; // FIFO-selected pending attack (hidden from UI)
+let hasPending = false;
+
+let activeSheet = null;
+let activeNoteId = null; // currently selected note for edit
+
+let handouts = [];
+let activeHandoutId = null;
+let itemsDb = null;
+let itemsIndex = {}; // item_id -> {item_id,name,type,weight,icon,category}
+let sheetDirtyPatch = {};
+let sheetSaveTimer = null;
+let sheetLastLoadedAt = 0;
+
+let activeCampaignId = "";
+let activePlayerId = "";
+let activeCharacterId = "";
+let lastLogs = [];
+let lastResultsSeen = 0;
+let feedEntries = []; // combined messages + results
+let inventoryRenderSeq = 0;
+
+
+const seenDedupeKeys = new Set();
+const seenPendingKeys = new Set();
+
+const ROLL_PRIORITY = {
+  "death_save": 0,
+  "save": 1,
+  "check": 2,
+  "attack_to_hit": 3,
+  "damage": 4,
+  "other": 5,
+};
+
+function rollPriority(kind) {
+  const k = (kind || "").toLowerCase().trim();
+  return (k in ROLL_PRIORITY) ? ROLL_PRIORITY[k] : 10;
+}
+
+const el = (id) => {
+  const n = document.getElementById(id);
+  if (!n) console.warn("Missing element id:", id);
+  return n;
+};
+
+function setStatus(text, cls = "muted") {
+  const s = el("status");
+  if (!s) return;
+  s.className = `status ${cls}`;
+  s.textContent = text;
+}
+
+function setNet(online) {
+  const n = el('netStatus');
+  if (!n) return;
+  if (online) { n.textContent = 'Online'; n.className = 'net netOk mono'; }
+  else { n.textContent = 'Offline'; n.className = 'net netBad mono'; }
+}
+
+function escapeHtml(s) {
+  return (s || "").toString().replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+// ---------------------------
+// Auth / session storage
+// ---------------------------
+function getToken() { return localStorage.getItem("grengine_token") || ""; }
+function setToken(t) { localStorage.setItem("grengine_token", t || ""); }
+function clearToken() { localStorage.removeItem("grengine_token"); }
+
+function authHeaders() {
+  const tok = getToken();
+  return tok ? { "Authorization": `Bearer ${tok}` } : {};
+}
+
+function apiBase() {
+  const cid = (activeCampaignId || "").trim();
+  return `/api/campaigns/${encodeURIComponent(cid)}`;
+}
+
+function buildItemsIndex(db) {
+  const idx = {};
+  const push = (arr, category) => {
+    if (!Array.isArray(arr)) return;
+    for (const it of arr) {
+      if (!it || typeof it !== "object") continue;
+      const item_id = (it.item_id || it.id || it.weapon_id || it.armor_id || "").toString().trim();
+      if (!item_id) continue;
+      idx[item_id] = {
+        item_id,
+        name: (it.name || item_id).toString(),
+        type: (it.type || category || "item").toString(),
+        weight: Number(it.weight || 0) || 0,
+        icon: (it.icon || "").toString(),
+        category: category || "misc",
+      };
+    }
+  };
+  db = (db && typeof db === "object") ? db : {};
+  push(db.weapons, "weapon");
+  push(db.armors, "armor");
+  push(db.health_items, "consumable");
+  push(db.misc_items, "misc");
+  return idx;
+}
+
+async function loadItemsDbOnce() {
+  if (itemsDb) return itemsDb;
+  try {
+    const db = await apiGet("/items");
+    itemsDb = db;
+    itemsIndex = buildItemsIndex(db);
+    return db;
+  } catch (e) {
+    console.warn("Failed to load items db:", e);
+    itemsDb = { weapons: [], armors: [], health_items: [], misc_items: [] };
+    itemsIndex = {};
+    return itemsDb;
+  }
+}
+
+async function apiGet(path) {
+  const r = await fetch(`${apiBase()}${path}`, { cache: "no-store", headers: { ...authHeaders() } });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${r.status} ${text}`);
+  return JSON.parse(text);
+}
+
+async function apiPost(path, payload) {
+  const r = await fetch(`${apiBase()}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload || {})
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${r.status} ${text}`);
+  return JSON.parse(text);
+}
+
+
+async function apiPatch(path, payload) {
+  const r = await fetch(`${apiBase()}${path}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload || {})
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${r.status} ${text}`);
+  return JSON.parse(text);
+}
+
+async function apiDelete(path) {
+  const r = await fetch(`${apiBase()}${path}`, {
+    method: "DELETE",
+    headers: { ...authHeaders() }
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${r.status} ${text}`);
+  return text ? JSON.parse(text) : {};
+}
+
+// ---------------------------
+// Dice helpers
+// ---------------------------
+function parseDamageExpr(expr) {
+  const s = (expr || "").trim().toLowerCase();
+  const m = s.match(/^(\d*)d(\d+)\s*([+-]\s*\d+)?$/);
+  if (!m) return null;
+
+  const count = m[1] ? parseInt(m[1], 10) : 1;
+  const sides = parseInt(m[2], 10);
+  const mod = m[3] ? parseInt(m[3].replace(/\s+/g, ""), 10) : 0;
+
+  if (!Number.isFinite(count) || !Number.isFinite(sides) || sides <= 0 || count <= 0) return null;
+  return { count, sides, mod, expr: (expr || "").trim() };
+}
+
+function rollNDY(count, sides) {
+  const dice = [];
+  for (let i = 0; i < count; i++) dice.push(1 + Math.floor(Math.random() * sides));
+  return dice;
+}
+
+function rollDamage(expr, isCrit) {
+  const parsed = parseDamageExpr(expr);
+  if (!parsed) return { expr: (expr || "").trim(), dice: [], modifier: 0, total: 0, crit_applied: false };
+
+  const diceCount = isCrit ? (parsed.count * 2) : parsed.count;
+  const dice = rollNDY(diceCount, parsed.sides);
+  const total = dice.reduce((a, b) => a + b, 0) + parsed.mod;
+
+  return { expr: parsed.expr, dice, modifier: parsed.mod, total, crit_applied: !!isCrit };
+}
+
+// ---------------------------
+// UI helpers
+// ---------------------------
+function setCampaignMeta(campaignId, playerId, characterName) {
+  const meta = el("campaignMeta");
+  if (!meta) return;
+  meta.textContent = `Campaign: ${campaignId || "—"} • Player: ${playerId || "—"} • Character: ${characterName || "—"}`;
+}
+
+function showLoginScreen() {
+  const ls = el("loginScreen");
+  const as = el("appScreen");
+  if (ls) ls.classList.remove("hidden");
+  if (as) as.classList.add("hidden");
+  const topHeader = el("topHeader");
+  if (topHeader) topHeader.classList.remove("hidden");
+  const btnLogoutFloat = el("btnLogoutFloat");
+  if (btnLogoutFloat) btnLogoutFloat.classList.add("hidden");
+}
+
+function showAppScreen() {
+  const ls = el("loginScreen");
+  const as = el("appScreen");
+  if (ls) ls.classList.add("hidden");
+  if (as) as.classList.remove("hidden");
+  const topHeader = el("topHeader");
+  if (topHeader) topHeader.classList.add("hidden");
+  const btnLogoutFloat = el("btnLogoutFloat");
+  if (btnLogoutFloat) btnLogoutFloat.classList.remove("hidden");
+}
+
+
+// Tabs were removed; the portal is a single-page layout.
+function enableTabs(_enabled) { /* no-op */ }
+function switchTab(_name) { /* no-op */ }
+
+function fmtMod(score) {
+  const s = Number(score || 0);
+  const m = Math.floor((s - 10) / 2);
+  return (m >= 0) ? `+${m}` : `${m}`;
+}
+
+function modInt(score) {
+  const s = Number(score || 0);
+  return Math.floor((s - 10) / 2);
+}
+
+function playerCanReadLanguage(lang) {
+  const name = (lang || "").trim().toLowerCase();
+  if (!name) return true;
+  const sheet = activeSheet || {};
+  const prof = sheet.proficiencies || {};
+  const langs = Array.isArray(prof.languages) ? prof.languages : [];
+  for (const L of langs) {
+    const n = String((L && L.name) ? L.name : "").trim().toLowerCase();
+    if (n && n === name) return !!(L && L.read);
+  }
+  return false;
+}
+
+function scrambleText(text, seedStr) {
+  // Deterministic scramble for unreadable handouts (language gating).
+  let h = 2166136261;
+  const s = String(seedStr || "");
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  let seed = (h >>> 0) || 1;
+  const rnd = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const A = "abcdefghijklmnopqrstuvwxyz";
+  const B = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let out = "";
+  for (const ch of String(text || "")) {
+    const iA = A.indexOf(ch);
+    const iB = B.indexOf(ch);
+    if (iA >= 0) out += A[Math.floor(rnd() * A.length)];
+    else if (iB >= 0) out += B[Math.floor(rnd() * B.length)];
+    else out += ch;
+  }
+  return out;
+}
+
+const SAVE_LIST = [
+  ["str", "STR"], ["dex", "DEX"], ["con", "CON"], ["int", "INT"], ["wis", "WIS"], ["cha", "CHA"],
+];
+
+const SKILL_LIST = [
+  ["acrobatics", "Acrobatics", "dex"],
+  ["animal_handling", "Animal Handling", "wis"],
+  ["arcana", "Arcana", "int"],
+  ["athletics", "Athletics", "str"],
+  ["deception", "Deception", "cha"],
+  ["history", "History", "int"],
+  ["insight", "Insight", "wis"],
+  ["intimidation", "Intimidation", "cha"],
+  ["investigation", "Investigation", "int"],
+  ["medicine", "Medicine", "wis"],
+  ["nature", "Nature", "int"],
+  ["perception", "Perception", "wis"],
+  ["performance", "Performance", "cha"],
+  ["persuasion", "Persuasion", "cha"],
+  ["religion", "Religion", "int"],
+  ["sleight_of_hand", "Sleight of Hand", "dex"],
+  ["stealth", "Stealth", "dex"],
+  ["survival", "Survival", "wis"],
+];
+
+function renderProficiencyGrids(sheet) {
+  const saveGrid = el("saveGrid");
+  const skillGrid = el("skillGrid");
+  if (!saveGrid || !skillGrid) return;
+
+  const creating = isCreatingSheet(sheet);
+  const pb = Number((sheet._derived && sheet._derived.proficiency_bonus) ? sheet._derived.proficiency_bonus : 2);
+  const ab = sheet.abilities || {};
+  const prof = sheet.proficiencies || {};
+  const ps = (prof.saves && typeof prof.saves === "object") ? prof.saves : {};
+  const pk = (prof.skills && typeof prof.skills === "object") ? prof.skills : {};
+
+  const mkRow = (key, label, bonus, checked, onToggle) => {
+    const wrap = document.createElement("div");
+    wrap.className = "skillrow";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!checked;
+    cb.disabled = !creating;
+    cb.onchange = () => onToggle(!!cb.checked);
+    const name = document.createElement("div");
+    name.textContent = label;
+    const bn = document.createElement("div");
+    bn.className = "mono bonus";
+    bn.textContent = (bonus >= 0) ? `+${bonus}` : `${bonus}`;
+    wrap.appendChild(cb);
+    wrap.appendChild(name);
+    wrap.appendChild(bn);
+    return wrap;
+  };
+
+  saveGrid.innerHTML = "";
+  for (const [k, lbl] of SAVE_LIST) {
+    const b = modInt(ab[k] ?? 10) + (ps[k] ? pb : 0);
+    saveGrid.appendChild(mkRow(`save_${k}`, `${lbl} Save`, b, !!ps[k], (v) => queueSheetPatch(`proficiencies.saves.${k}`, v)));
+  }
+
+  skillGrid.innerHTML = "";
+  for (const [key, lbl, abil] of SKILL_LIST) {
+    const b = modInt(ab[abil] ?? 10) + (pk[key] ? pb : 0);
+    skillGrid.appendChild(mkRow(`skill_${key}`, `${lbl} (${abil.toUpperCase()})`, b, !!pk[key], (v) => queueSheetPatch(`proficiencies.skills.${key}`, v)));
+  }
+}
+
+function renderInventory(sheet) {
+  const tbl = el("invTable");
+  const wout = el("invWeightOut");
+  const eout = el("invEncOut");
+  const addSel = el("invAddSelect");
+  const btnAdd = el("btnInvAdd");
+  const eqW = el("equipWeapon");
+  const eqA = el("equipArmor");
+  if (!tbl) return;
+
+  const inv = Array.isArray(sheet.inventory) ? sheet.inventory : [];
+  const abilities = sheet.abilities || {};
+  const str = Number(abilities.str ?? abilities.STR ?? 10) || 10;
+  const capacity = Math.max(0, str * 15);
+
+  const seq = ++inventoryRenderSeq;
+
+  (async () => {
+    await loadItemsDbOnce();
+    if (seq !== inventoryRenderSeq) return;
+
+    if (addSel) {
+      addSel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "(select an item)";
+      addSel.appendChild(opt0);
+
+      const all = Object.values(itemsIndex);
+      all.sort((a, b) => (a.name || a.item_id).localeCompare(b.name || b.item_id));
+      for (const it of all) {
+        const opt = document.createElement("option");
+        opt.value = it.item_id;
+        const w = (it.weight && it.weight > 0) ? ` • ${it.weight} lb` : "";
+        opt.textContent = `${it.name} (${it.item_id})${w}`;
+        addSel.appendChild(opt);
+      }
+    }
+
+    const mkEquip = (sel, list, currentId, emptyLabel) => {
+      if (!sel) return;
+      sel.innerHTML = "";
+      const o0 = document.createElement("option");
+      o0.value = "";
+      o0.textContent = emptyLabel;
+      sel.appendChild(o0);
+
+      const arr = Array.isArray(list) ? list : [];
+      const opts = arr.map(x => ({
+        item_id: (x.item_id || x.id || "").toString(),
+        name: (x.name || x.item_id || x.id || "").toString(),
+      })).filter(x => x.item_id);
+
+      opts.sort((a, b) => a.name.localeCompare(b.name));
+
+      for (const it of opts) {
+        const opt = document.createElement("option");
+        opt.value = it.item_id;
+        opt.textContent = it.name;
+        if (it.item_id === currentId) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    };
+
+    const eq = (sheet.equipped && typeof sheet.equipped === "object") ? sheet.equipped : {};
+    mkEquip(eqW, itemsDb ? itemsDb.weapons : [], (eq.weapon_id || "").toString(), "Weapon: (none)");
+    mkEquip(eqA, itemsDb ? itemsDb.armors : [], (eq.armor_id || "").toString(), "Armor: (none)");
+
+    if (btnAdd) {
+      btnAdd.disabled = false;
+      btnAdd.onclick = async () => {
+        const sel = el("invAddSelect");
+        const qtyN = el("invAddQty");
+        const item_id = sel ? (sel.value || "").trim() : "";
+        const qty = Math.max(1, parseInt((qtyN && qtyN.value) ? qtyN.value : "1", 10) || 1);
+        if (!item_id) return;
+        try {
+          await apiPost("/inventory/mine/add", { item_id, qty });
+          if (qtyN) qtyN.value = "1";
+          if (sel) sel.value = "";
+          await loadSheetOnce(true);
+        } catch (e) {
+          console.error("[INV_ADD] failed", e);
+          setStatus(`Add item failed: ${e}`, "err");
+        }
+      };
+    }
+
+    if (eqW) {
+      eqW.onchange = async () => {
+        try {
+          const weapon_id = (eqW.value || "").trim();
+          await apiPost("/equip/mine", { weapon_id });
+          const fresh = await apiGet("/sheet/mine");
+          activeSheet = fresh;
+          sheetLastLoadedAt = Date.now();
+          renderSheetFromState(fresh);
+        } catch (e) {
+          console.error("[EQUIP_WEAPON] failed", e);
+          setStatus(`Equip weapon failed: ${e}`, "err");
+        }
+      };
+    }
+
+    if (eqA) {
+      eqA.onchange = async () => {
+        try {
+          const armor_id = (eqA.value || "").trim();
+          await apiPost("/equip/mine", { armor_id });
+          const fresh = await apiGet("/sheet/mine");
+          activeSheet = fresh;
+          sheetLastLoadedAt = Date.now();
+          renderSheetFromState(fresh);
+        } catch (e) {
+          console.error("[EQUIP_ARMOR] failed", e);
+          setStatus(`Equip armor failed: ${e}`, "err");
+        }
+      };
+    }
+  })();
+
+  const iconFor = (it) => {
+    const id = (it.item_id || "").toString();
+    const fromDb = itemsIndex[id];
+    const icon = (it.icon || (fromDb ? fromDb.icon : "") || "").toString().trim();
+    if (icon) return icon;
+    const name = (it.name || (fromDb ? fromDb.name : "") || id || "?").toString();
+    return name.substring(0, 1).toUpperCase();
+  };
+
+  const _isImageIcon = (s) => {
+    const v = (s || "").toString().trim().toLowerCase();
+    return !!v && (v.endsWith(".png") || v.endsWith(".jpg") || v.endsWith(".jpeg") || v.endsWith(".webp") || v.endsWith(".gif") || v.endsWith(".svg"));
+  };
+
+  const _resolveIconUrl = (icon) => {
+    const v = (icon || "").toString().trim();
+    if (!v) return "";
+    if (v.startsWith("http://") || v.startsWith("https://") || v.startsWith("data:") || v.startsWith("/")) return v;
+    return `/static/${v}`;
+  };
+
+  const nameFor = (it) => {
+    const id = (it.item_id || "").toString();
+    const fromDb = itemsIndex[id];
+    return (it.name || (fromDb ? fromDb.name : "") || id || "item").toString();
+  };
+
+  const weightFor = (it) => {
+    const id = (it.item_id || "").toString();
+    const fromDb = itemsIndex[id];
+    const w = (it.weight !== undefined && it.weight !== null) ? Number(it.weight) : (fromDb ? Number(fromDb.weight) : 0);
+    return Number.isFinite(w) ? w : 0;
+  };
+
+  const _renderInvIcon = (container, it) => {
+    if (!container) return;
+    container.innerHTML = "";
+    const raw = iconFor(it);
+    if (_isImageIcon(raw)) {
+      const img = document.createElement("img");
+      img.alt = (nameFor(it) || "icon").toString();
+      img.src = _resolveIconUrl(raw);
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      img.style.borderRadius = "6px";
+      img.loading = "lazy";
+      img.onerror = () => {
+        container.innerHTML = "";
+        const letter = (nameFor(it) || "?").toString().substring(0, 1).toUpperCase();
+        container.textContent = letter;
+      };
+      container.appendChild(img);
+    } else {
+      container.textContent = raw.toString().substring(0, 2);
+    }
+  };
+
+  let totalW = 0;
+  for (const it of inv) {
+    if (!it) continue;
+    const qty = Math.max(0, Number(it.qty ?? 1) || 0);
+    totalW += qty * weightFor(it);
+  }
+  totalW = Math.round(totalW * 100) / 100;
+
+  if (wout) wout.textContent = `Weight: ${totalW} / ${capacity} lb`;
+  if (eout) {
+    const state = (totalW <= capacity) ? "OK" : "OVER";
+    eout.textContent = `Encumbrance: ${state}`;
+  }
+
+  const handoutRows = (Array.isArray(handouts) ? handouts : []).map(h => ({
+    _virtualType: "handout",
+    handout_id: String(h.handout_id || "").trim(),
+    name: String(h.title || "Handout"),
+    qty: 1,
+    weight: 0,
+    unreadable: !!h.unreadable,
+    unreadable_mode: h.unreadable_mode || "",
+    text: h.text || "",
+    payload: h.payload || {},
+    created_at: h.created_at || 0,
+  }));
+
+  const rows = [
+    ...inv.map((it, idx) => ({ ...it, _rowType: "inventory", _index: idx })),
+    ...handoutRows.map(h => ({ ...h, _rowType: "handout_virtual" })),
+  ];
+
+  const head = document.createElement("div");
+  head.className = "invRow invHead";
+  head.innerHTML = `<div></div><div>Item</div><div style="text-align:right;">Wt</div><div style="text-align:right;">Qty</div><div style="text-align:right;">Actions</div>`;
+
+  tbl.innerHTML = "";
+  tbl.appendChild(head);
+
+  if (rows.length === 0) {
+    const r = document.createElement("div");
+    r.className = "invRow";
+    r.innerHTML = `<div class="invIcon">—</div><div class="muted">(empty)</div><div></div><div></div><div></div>`;
+    tbl.appendChild(r);
+    return;
+  }
+
+  rows.forEach((it) => {
+    const row = document.createElement("div");
+    row.className = "invRow";
+
+    const qty = Math.max(0, Number(it.qty ?? 1) || 0);
+    const w = weightFor(it);
+
+    const isNote = (it.type === "note");
+    const isHandout = (it._rowType === "handout_virtual");
+    const id = isHandout ? String(it.handout_id || "") : String(it.item_id || it.note_id || "");
+
+    const icon = document.createElement("div");
+    icon.className = "invIcon";
+    if (isHandout) {
+      icon.textContent = "H";
+    } else {
+      _renderInvIcon(icon, it);
+    }
+
+    const nm = document.createElement("div");
+    let suffix = "";
+    if (isNote) suffix = ` <span class="muted">(note)</span>`;
+    if (isHandout) suffix = ` <span class="muted">(handout${it.unreadable ? ", unreadable" : ""})</span>`;
+    nm.innerHTML =
+      `<div>${escapeHtml(nameFor(it))}${suffix}</div>` +
+      (id ? `<div class="mono muted" style="font-size:12px;">${escapeHtml(id)}</div>` : "");
+
+    const wt = document.createElement("div");
+    wt.className = "mono";
+    wt.style.textAlign = "right";
+    wt.textContent = (Number.isFinite(w) ? (w === 0 ? "0" : `${w}`) : "0");
+
+    const q = document.createElement("div");
+    q.className = "invQty";
+
+    if (isHandout) {
+      const qn = document.createElement("div");
+      qn.className = "mono qtyNum";
+      qn.textContent = "—";
+      q.appendChild(qn);
+    } else {
+      const btnMinus = document.createElement("button");
+      btnMinus.className = "btn ghost";
+      btnMinus.type = "button";
+      btnMinus.textContent = "-";
+      btnMinus.disabled = isNote;
+      btnMinus.onclick = async () => {
+        await apiPost("/inventory/mine/adjust", { index: it._index, delta: -1 });
+        await loadSheetOnce(true);
+      };
+
+      const btnPlus = document.createElement("button");
+      btnPlus.className = "btn ghost";
+      btnPlus.type = "button";
+      btnPlus.textContent = "+";
+      btnPlus.disabled = isNote;
+      btnPlus.onclick = async () => {
+        await apiPost("/inventory/mine/adjust", { index: it._index, delta: 1 });
+        await loadSheetOnce(true);
+      };
+
+      const qn = document.createElement("div");
+      qn.className = "mono qtyNum";
+      qn.textContent = String(qty);
+
+      q.appendChild(btnMinus);
+      q.appendChild(qn);
+      q.appendChild(btnPlus);
+    }
+
+    const acts = document.createElement("div");
+    acts.className = "invActions";
+
+    const btnUse = document.createElement("button");
+    btnUse.className = "btn";
+    btnUse.type = "button";
+
+    if (isHandout) {
+      btnUse.textContent = "Open";
+      btnUse.onclick = async () => {
+        const h = (Array.isArray(handouts) ? handouts : []).find(x => String(x.handout_id || "") === String(it.handout_id || ""));
+        if (!h) return;
+
+        activeHandoutId = h.handout_id;
+        const payload = h.payload || {};
+        const lang = String(payload.language || payload.lang || h.language || "").trim();
+
+        let canRead = true;
+        try {
+          canRead = playerCanReadLanguage(lang);
+        } catch (e) {
+          canRead = false;
+        }
+
+        const unreadableMode = String(h.unreadable_mode || payload.unreadable_mode || "blocked").trim().toLowerCase();
+        const titleEl = el("handoutTitle");
+        const bodyEl = el("handoutBody");
+        const view = el("handoutView");
+
+        if (titleEl) titleEl.textContent = (h.title || "Handout");
+
+        let body = (h.text ?? payload.text ?? payload.body ?? payload.content ?? payload.message ?? "").toString().trim();
+        const isUnreadable = (lang && !canRead) || Boolean(h.unreadable);
+
+        if (isUnreadable) {
+          body = (unreadableMode === "scramble")
+            ? (body || "You can't read this handout.")
+            : "You can't read this handout.";
+        } else {
+          body = body || "(Empty handout.)";
+        }
+
+        if (bodyEl) bodyEl.textContent = body;
+        if (view) {
+          view.classList.remove("hidden");
+          view.style.display = "block";
+        }
+
+        if (!h.read) {
+          try { await apiPost("/handouts/read", { handout_id: h.handout_id }); } catch (_) {}
+          h.read = true;
+        }
+      };
+    } else {
+      const canUse = !!(String((it.effect || "")).trim()) || String(it.type || "").toLowerCase() === "consumable";
+      btnUse.textContent = isNote ? "Edit" : "Use";
+      btnUse.disabled = !isNote && !canUse;
+      btnUse.onclick = async () => {
+        if (isNote) {
+          const notes = (activeSheet && Array.isArray(activeSheet.notes)) ? activeSheet.notes : [];
+          const n = notes.find(n0 => String(n0.note_id || "") === String(it.note_id || ""));
+          if (!n) return;
+          activeNoteId = String(n.note_id || "");
+          const t = el("noteTitle");
+          const x = el("noteText");
+          if (t) t.value = (n.title || "").toString();
+          if (x) x.value = (n.text || "").toString();
+          setNoteEditingBanner();
+          renderNotesFromState(activeSheet);
+          return;
+        }
+
+        try {
+          await apiPost("/inventory/mine/use", { index: it._index });
+          await loadSheetOnce(true);
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+    }
+
+    const btnSend = document.createElement("button");
+    btnSend.className = "btn ghost";
+    btnSend.type = "button";
+    btnSend.textContent = "Send";
+    btnSend.disabled = false;
+
+    btnSend.onclick = async () => {
+      const chars = await loadPartyCharacters(true);
+      const me = activeCharacterId || "";
+      const options = chars.filter(c => c && c.character_id && c.character_id !== me);
+
+      if (!options.length) {
+        alert("No other characters available.");
+        return;
+      }
+
+      const list = options.map(c => `${c.character_id} (${c.display_name || c.character_id})`).join("\n");
+      const toChar = prompt("Send to which character_id?\n" + list, options[0].character_id);
+      if (!toChar) return;
+
+      try {
+        if (isHandout) {
+          await apiPost("/handouts/mine/share", {
+            handout_id: String(it.handout_id || "").trim(),
+            to_character_id: toChar.trim(),
+          });
+        } else if (isNote) {
+          await apiPost(`/notes/mine/${encodeURIComponent(String(it.note_id || "").trim())}/send`, {
+            to_character_id: toChar.trim(),
+          });
+        } else {
+          const qraw = prompt(`Quantity to send (1-${qty})`, "1");
+          const qn = Math.max(1, Math.min(qty, parseInt(qraw || "1", 10) || 1));
+          await apiPost("/inventory/mine/transfer", {
+            index: it._index,
+            to_character_id: toChar.trim(),
+            qty: qn,
+          });
+        }
+
+        await loadSheetOnce(true);
+        await pollHandoutsOnce();
+      } catch (e) {
+        console.warn(e);
+        alert("Send failed.");
+      }
+    };
+
+    const btnRm = document.createElement("button");
+    btnRm.className = "btn ghost";
+    btnRm.type = "button";
+
+    if (isHandout) {
+      btnRm.textContent = "Hide";
+      btnRm.disabled = true;
+    } else if (isNote) {
+      btnRm.textContent = "Delete";
+      btnRm.onclick = async () => {
+        if (!it.note_id) return;
+        await apiDelete(`/notes/mine/${encodeURIComponent(String(it.note_id || "").trim())}`);
+        if (activeNoteId === String(it.note_id || "")) {
+          activeNoteId = null;
+          setNoteEditingBanner();
+        }
+        await loadSheetOnce(true);
+      };
+    } else {
+      btnRm.textContent = "Remove";
+      btnRm.onclick = async () => {
+        await apiPost("/inventory/mine/remove", { index: it._index });
+        await loadSheetOnce(true);
+      };
+    }
+
+    acts.appendChild(btnUse);
+    acts.appendChild(btnSend);
+    acts.appendChild(btnRm);
+
+    row.appendChild(icon);
+    row.appendChild(nm);
+    row.appendChild(wt);
+    row.appendChild(q);
+    row.appendChild(acts);
+    tbl.appendChild(row);
+  });
+}
+
+function setSheetSaveStatus(text, cls) {
+  const out = el("sheetSaveOut");
+  if (!out) return;
+  out.textContent = text;
+  out.className = `hint mono ${cls || ""}`.trim();
+}
+
+function setSheetStatusText(text) {
+  const out = el("sheetStatusOut");
+  if (out) out.textContent = text || "—";
+}
+
+function setInputDisabled(id, disabled) {
+  const n = el(id);
+  if (n) n.disabled = !!disabled;
+}
+
+function readInt(id, fallback) {
+  const n = el(id);
+  if (!n) return fallback;
+  const v = parseInt(String(n.value || "").trim(), 10);
+  return Number.isFinite(v) ? v : fallback;
+}
+
+function writeVal(id, v) {
+  const n = el(id);
+  if (n) n.value = (v === null || v === undefined) ? "" : String(v);
+}
+
+function setText(id, v) {
+  const n = el(id);
+  if (n) n.textContent = (v === null || v === undefined || v === "") ? "—" : String(v);
+}
+
+function isCreatingSheet(sheet) {
+  const lc = (sheet && sheet.lifecycle) ? sheet.lifecycle : {};
+  return String((lc && lc.status) ? lc.status : "active").toLowerCase().trim() === "creating";
+}
+
+
+let _partyCache = { ts: 0, characters: [] };
+let _lastSheetRefreshTs = 0;
+let _lastSheetUpdatedAt = 0;
+
+async function loadPartyCharacters(force=false) {
+  const now = Date.now();
+  if (!force && _partyCache.characters.length && (now - _partyCache.ts) < 15000) return _partyCache.characters;
+  try {
+    const data = await apiGet("/party/characters");
+    const chars = Array.isArray(data.characters) ? data.characters : [];
+    _partyCache = { ts: now, characters: chars };
+    return chars;
+  } catch (e) {
+    return _partyCache.characters || [];
+  }
+}
+async function loadSheetOnce(force=false) {
+  const now = Date.now();
+  if (!force && activeSheet && (now - sheetLastLoadedAt) < 1500) return;
+  const sheet = await apiGet("/sheet/mine");
+  activeSheet = sheet;
+  sheetLastLoadedAt = now;
+  const updatedAt = Number((sheet && sheet.updated_at) || 0);
+  if (updatedAt) _lastSheetUpdatedAt = updatedAt;
+  renderSheetFromState(sheet);
+}
+
+async function pollSheetStateOnce() {
+  const now = Date.now();
+  if ((now - _lastSheetRefreshTs) < 1200) return;
+  _lastSheetRefreshTs = now;
+
+  const sheet = await apiGet("/sheet/mine");
+  const updatedAt = Number((sheet && sheet.updated_at) || 0);
+  const effectsA = JSON.stringify((activeSheet && activeSheet.combat_effects) || []);
+  const effectsB = JSON.stringify((sheet && sheet.combat_effects) || []);
+  const shouldRender = !activeSheet || updatedAt !== _lastSheetUpdatedAt || effectsA !== effectsB;
+
+  activeSheet = sheet;
+  sheetLastLoadedAt = now;
+  if (updatedAt) _lastSheetUpdatedAt = updatedAt;
+  if (shouldRender) renderSheetFromState(sheet);
+}
+
+function refreshAbilityModsFromInputs() {
+  const vals = {
+    str: readInt("abStr", 10),
+    dex: readInt("abDex", 10),
+    con: readInt("abCon", 10),
+    int: readInt("abInt", 10),
+    wis: readInt("abWis", 10),
+    cha: readInt("abCha", 10),
+  };
+
+  setText("modStr", fmtMod(vals.str));
+  setText("modDex", fmtMod(vals.dex));
+  setText("modCon", fmtMod(vals.con));
+  setText("modInt", fmtMod(vals.int));
+  setText("modWis", fmtMod(vals.wis));
+  setText("modCha", fmtMod(vals.cha));
+}
+
+
+function renderCombatEffects(sheet) {
+  const host = el("effectsList");
+  if (!host) return;
+  const effects = Array.isArray(sheet && sheet.combat_effects) ? sheet.combat_effects : [];
+  if (!effects.length) {
+    host.textContent = "No active effects.";
+    return;
+  }
+  host.innerHTML = "";
+  for (const fx of effects) {
+    const row = document.createElement("div");
+    row.className = "noteRow";
+    const bits = [];
+    if (fx.source) bits.push(`source: ${fx.source}`);
+    if (fx.summary) bits.push(String(fx.summary));
+    else if (fx.rounds_remaining !== null && fx.rounds_remaining !== undefined) bits.push(`${fx.rounds_remaining} rounds left`);
+    row.innerHTML = `<div class="noteTitle">${escapeHtml(fx.name || "Effect")}</div><div class="noteMeta mono">${escapeHtml(bits.join(" • ") || "active")}</div>`;
+    host.appendChild(row);
+  }
+}
+function renderSheetFromState(sheet) {
+  if (!sheet) return;
+  const creating = isCreatingSheet(sheet);
+
+  const lc = sheet.lifecycle || {};
+  setSheetStatusText(`State: ${lc.status || "active"}`);
+
+  const pb = (sheet._derived && sheet._derived.proficiency_bonus) ? sheet._derived.proficiency_bonus : "—";
+  setText("sheetProfBonus", pb);
+
+  writeVal("sheetName", sheet.display_name || "");
+  writeVal("sheetClass", (sheet.meta && sheet.meta.class) ? sheet.meta.class : "");
+  writeVal("sheetRace", (sheet.meta && sheet.meta.race) ? sheet.meta.race : "");
+  writeVal("sheetBackground", (sheet.meta && sheet.meta.background) ? sheet.meta.background : "");
+  writeVal("sheetLevel", (sheet.meta && sheet.meta.level) ? sheet.meta.level : 1);
+
+  const st = sheet.stats || {};
+  const res = sheet.resources || {};
+  setText("sheetMaxHp", st.max_hp || 0);
+  writeVal("sheetCurHp", (st.current_hp !== undefined) ? st.current_hp : (res.current_hp ?? 0));
+  writeVal("sheetTempHp", res.temp_hp ?? 0);
+
+  const ab = sheet.abilities || {};
+  const abilityMap = {
+    "abStr": ab.str, "abDex": ab.dex, "abCon": ab.con,
+    "abInt": ab.int, "abWis": ab.wis, "abCha": ab.cha
+  };
+  for (const [id, val] of Object.entries(abilityMap)) writeVal(id, val ?? 10);
+
+  setText("modStr", fmtMod(ab.str ?? 10));
+  setText("modDex", fmtMod(ab.dex ?? 10));
+  setText("modCon", fmtMod(ab.con ?? 10));
+  setText("modInt", fmtMod(ab.int ?? 10));
+  setText("modWis", fmtMod(ab.wis ?? 10));
+  setText("modCha", fmtMod(ab.cha ?? 10));
+
+  refreshAbilityModsFromInputs();
+  
+  renderProficiencyGrids(sheet);
+  renderOtherProficiencies(sheet);
+  renderLanguages(sheet);
+
+  renderCombatPanel(sheet);
+  renderCombatEffects(sheet);
+  renderCurrency(sheet);
+  renderBackground(sheet);
+  renderFeatures(sheet);
+  renderSpellcasting(sheet);
+  renderDetails(sheet);
+  renderInventory(sheet);
+  renderNotesFromState(sheet);
+  setNoteEditingBanner();
+
+  const creatingOnlyDisabled = !creating;
+  setInputDisabled("sheetName", creatingOnlyDisabled);
+  setInputDisabled("sheetClass", creatingOnlyDisabled);
+  setInputDisabled("sheetRace", creatingOnlyDisabled);
+  setInputDisabled("sheetBackground", creatingOnlyDisabled);
+  setInputDisabled("sheetLevel", creatingOnlyDisabled);
+  for (const id of ["abStr","abDex","abCon","abInt","abWis","abCha"]) setInputDisabled(id, creatingOnlyDisabled);
+
+  setInputDisabled("sheetCurHp", false);
+  setInputDisabled("sheetTempHp", false);
+
+  // Creation-only fields
+  // NOTE: languages must remain editable post-finalize because they gate handout readability.
+  const creatingOnlyDisabled2 = !creating;
+  for (const id of ["profArmor","profWeapons","profTools","profOther"]) {
+    const n = el(id);
+    if (!n) continue;
+    n.disabled = creatingOnlyDisabled2;
+  }
+
+  const btnFinalize = el("btnFinalize");
+  if (btnFinalize) btnFinalize.disabled = !creating;
+
+  setSheetSaveStatus("Saved.", "ok");
+}
+
+function renderOtherProficiencies(sheet) {
+  const creating = isCreatingSheet(sheet);
+  const prof = (sheet && sheet.proficiencies) ? sheet.proficiencies : {};
+  const other = (prof && typeof prof.other === "object" && prof.other) ? prof.other : {};
+  writeVal("profArmor", other.armor || "");
+  writeVal("profWeapons", other.weapons || "");
+  writeVal("profTools", other.tools || "");
+  writeVal("profOther", other.other || "");
+  for (const id of ["profArmor","profWeapons","profTools","profOther"]) setInputDisabled(id, !creating);
+}
+
+function renderLanguages(sheet) {
+  // Languages are always editable because they affect play / readability.
+  const host = el("langList");
+  if (!host) return;
+
+  const prof = (sheet && typeof sheet.proficiencies === "object" && sheet.proficiencies)
+    ? sheet.proficiencies
+    : {};
+
+  const langs = Array.isArray(prof.languages) ? prof.languages : [];
+
+  host.innerHTML = "";
+
+  if (!langs.length) {
+    const empty = document.createElement("div");
+    empty.className = "hint mono";
+    empty.textContent = "No languages set.";
+    host.appendChild(empty);
+    return;
+  }
+
+  langs.forEach((L, idx) => {
+    const row = document.createElement("div");
+    row.className = "langRow";
+
+    const name = document.createElement("input");
+    name.className = "inp";
+    name.value = (L && L.name) ? String(L.name) : "";
+    name.onchange = async () => {
+      const next = langs.map((x, i) =>
+        i === idx
+          ? {
+              ...x,
+              name: (name.value || "").trim(),
+            }
+          : x
+      );
+      await _saveLanguages(next);
+    };
+    row.appendChild(name);
+
+    const mk = (label, key) => {
+      const wrap = document.createElement("label");
+      wrap.className = "mini";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!(L && L[key]);
+      cb.onchange = async () => {
+        const next = langs.map((x, i) =>
+          i === idx
+            ? {
+                ...x,
+                [key]: !!cb.checked,
+              }
+            : x
+        );
+        await _saveLanguages(next);
+      };
+
+      wrap.appendChild(cb);
+      wrap.appendChild(document.createTextNode(" " + label));
+      return wrap;
+    };
+
+    row.appendChild(mk("Speak", "speak"));
+    row.appendChild(mk("Read", "read"));
+    row.appendChild(mk("Write", "write"));
+
+    const del = document.createElement("button");
+    del.className = "btn danger";
+    del.textContent = "×";
+    del.onclick = async () => {
+      const next = langs.filter((_, i) => i !== idx);
+      await _saveLanguages(next);
+    };
+    row.appendChild(del);
+
+    host.appendChild(row);
+  });
+}
+
+function renderCombatPanel(sheet) {
+  const ab = sheet.abilities || {};
+  const st = sheet.stats || {};
+  setText("outAC", (st.defense !== undefined) ? String(st.defense) : "—");
+  setText("outSpeed", (st.movement_ft !== undefined) ? String(st.movement_ft) : "—");
+  const dexMod = modInt(ab.dex ?? 10);
+  setText("outInit", (dexMod >= 0 ? "+" : "") + String(dexMod));
+  const prof = sheet.proficiencies || {};
+  const skills = (prof && typeof prof.skills === "object" && prof.skills) ? prof.skills : {};
+  const wisMod = modInt(ab.wis ?? 10);
+  const percProf = !!skills["perception"];
+  const pb = Number((sheet._derived && sheet._derived.proficiency_bonus) ? sheet._derived.proficiency_bonus : 0) || 0;
+  const passive = 10 + wisMod + (percProf ? pb : 0);
+  setText("outPassivePerception", String(passive));
+
+  const cb = (sheet.combat && typeof sheet.combat === "object") ? sheet.combat : {};
+  const insp = el("combatInspiration");
+  if (insp) insp.checked = !!cb.inspiration;
+  writeVal("hitDieSides", cb.hit_die_sides ?? 8);
+  writeVal("hitDiceTotal", cb.hit_dice_total ?? 1);
+  writeVal("hitDiceUsed", cb.hit_dice_used ?? 0);
+  const ds = (cb.death_saves && typeof cb.death_saves === "object") ? cb.death_saves : {};
+  writeVal("dsSucc", ds.successes ?? 0);
+  writeVal("dsFail", ds.failures ?? 0);
+}
+
+async function _saveLanguages(langs) {
+  try {
+    const clean = Array.isArray(langs)
+      ? langs.map(x => ({
+          name: String(x?.name || "").trim(),
+          speak: !!x?.speak,
+          read: !!x?.read,
+          write: !!x?.write,
+        })).filter(x => x.name)
+      : [];
+
+    await apiPatch("/sheet/mine", {
+      patch: {
+        proficiencies: {
+          languages: clean,
+        },
+      },
+    });
+
+    await loadSheetOnce(true);
+    setSheetSaveStatus("Saved.", "ok");
+  } catch (e) {
+    console.warn("[LANG] save failed", e);
+    setSheetSaveStatus("Save failed.", "err");
+  }
+}
+
+
+function renderCurrency(sheet) {
+  const cur = (sheet.currency && typeof sheet.currency === "object") ? sheet.currency : {};
+  writeVal("curCp", cur.cp ?? 0);
+  writeVal("curSp", cur.sp ?? 0);
+    writeVal("curGp", cur.gp ?? 0);
+  }
+
+function renderBackground(sheet) {
+  const bg = (sheet.background && typeof sheet.background === "object") ? sheet.background : {};
+  writeVal("bgTraits", bg.personality_traits || "");
+  writeVal("bgIdeals", bg.ideals || "");
+  writeVal("bgBonds", bg.bonds || "");
+  writeVal("bgFlaws", bg.flaws || "");
+  writeVal("bgBackstory", bg.backstory || "");
+}
+
+function renderFeatures(sheet) {
+  const ft = (sheet.features && typeof sheet.features === "object") ? sheet.features : {};
+  writeVal("featTraits", ft.features_and_traits || "");
+}
+
+function renderSpellcasting(sheet) {
+  const sc = (sheet.spellcasting && typeof sheet.spellcasting === "object") ? sheet.spellcasting : {};
+  writeVal("scClass", sc.class || "");
+  writeVal("scAbility", sc.ability || "");
+  writeVal("scDc", sc.save_dc ?? 0);
+  writeVal("scAtk", sc.attack_bonus ?? 0);
+  writeVal("scCantrips", sc.cantrips || "");
+
+  const host = el("spellSlots");
+  if (!host) return;
+  const spells = (sc.spells && typeof sc.spells === "object") ? sc.spells : {};
+  host.innerHTML = "";
+  for (let lvl = 1; lvl <= 9; lvl++) {
+    const key = String(lvl);
+    const row = document.createElement("div");
+    row.className = "slotRow";
+    const tag = document.createElement("div");
+    tag.className = "tag";
+    tag.textContent = `Lv ${lvl}`;
+    row.appendChild(tag);
+
+    const tot = document.createElement("input");
+    tot.className = "inp mono tiny";
+    tot.type = "number";
+    tot.min = "0";
+    tot.max = "99";
+    tot.step = "1";
+    tot.value = (spells[key] && spells[key].total !== undefined) ? String(spells[key].total) : "0";
+    tot.oninput = () => queueSheetPatch(`spellcasting.spells.${key}.total`, parseInt(tot.value || "0", 10) || 0);
+    row.appendChild(tot);
+
+    const used = document.createElement("input");
+    used.className = "inp mono tiny";
+    used.type = "number";
+    used.min = "0";
+    used.max = "99";
+    used.step = "1";
+    used.value = (spells[key] && spells[key].used !== undefined) ? String(spells[key].used) : "0";
+    used.oninput = () => queueSheetPatch(`spellcasting.spells.${key}.used`, parseInt(used.value || "0", 10) || 0);
+    row.appendChild(used);
+
+    host.appendChild(row);
+  }
+}
+
+function renderDetails(sheet) {
+  const dt = (sheet.details && typeof sheet.details === "object") ? sheet.details : {};
+  writeVal("dtAge", dt.age || "");
+  writeVal("dtHeight", dt.height || "");
+  writeVal("dtWeight", dt.weight || "");
+  writeVal("dtEyes", dt.eyes || "");
+  writeVal("dtSkin", dt.skin || "");
+  writeVal("dtHair", dt.hair || "");
+  writeVal("dtAppearance", dt.appearance || "");
+  writeVal("dtAllies", dt.allies_and_organizations || "");
+  writeVal("dtTreasure", dt.treasure || "");
+}
+
+function queueSheetPatch(dotPath, value) {
+  const parts = dotPath.split(".");
+  let cur = sheetDirtyPatch;
+  for (let i = 0; i < parts.length; i++) {
+    const k = parts[i];
+    if (i === parts.length - 1) cur[k] = value;
+    else {
+      if (!cur[k] || typeof cur[k] !== "object") cur[k] = {};
+      cur = cur[k];
+    }
+  }
+
+  setSheetSaveStatus("Unsaved changes…", "warn");
+  if (sheetSaveTimer) clearTimeout(sheetSaveTimer);
+  sheetSaveTimer = setTimeout(() => flushSheetPatch().catch(e => setStatus(`Save failed: ${e}`, "err")), 450);
+}
+
+async function flushSheetPatch() {
+  if (!sheetDirtyPatch || Object.keys(sheetDirtyPatch).length === 0) return;
+  const patch = sheetDirtyPatch;
+  sheetDirtyPatch = {};
+  setSheetSaveStatus("Saving…", "muted");
+  await apiPatch("/sheet/mine", { patch, finalize: false });
+  await loadSheetOnce(true);
+  setSheetSaveStatus("Saved.", "ok");
+}
+
+async function finalizeSheet() {
+  setSheetSaveStatus("Finalizing…", "muted");
+  await apiPatch("/sheet/mine", { patch: {}, finalize: true });
+  await loadSheetOnce(true);
+  setSheetSaveStatus("Finalized (locked).", "ok");
+}
+
+function setNoteEditingBanner() {
+  const out = el("noteEditingOut");
+  if (!out) return;
+  if (activeNoteId) {
+    out.textContent = `Editing: ${activeNoteId}`;
+  } else {
+    out.textContent = "New note";
+  }
+}
+
+function clearNoteEditor() {
+  activeNoteId = null;
+  const t = el("noteTitle");
+  const x = el("noteText");
+  if (t) t.value = "";
+  if (x) x.value = "";
+  setText("noteSaveOut", "—");
+  setNoteEditingBanner();
+  renderNotesFromState(activeSheet);
+}
+
+async function saveNoteClicked() {
+  const t = el("noteTitle");
+  const x = el("noteText");
+  const title = t ? (t.value || "").trim() : "";
+  const text = x ? (x.value || "").trim() : "";
+  if (!text && !title) {
+    setText("noteSaveOut", "Enter a title or text.");
+    return;
+  }
+  setText("noteSaveOut", "Saving…");
+  if (activeNoteId) {
+    await apiPatch(`/notes/mine/${activeNoteId}`, { title, text });
+  } else {
+    await apiPost("/notes/mine", { title, text });
+  }
+  await loadSheetOnce(true);
+  setText("noteSaveOut", "Saved." );
+}
+
+async function deleteNoteClicked() {
+  if (!activeNoteId) return;
+  setText("noteSaveOut", "Deleting…");
+  await apiDelete(`/notes/mine/${activeNoteId}`);
+  activeNoteId = null;
+  await loadSheetOnce(true);
+  setText("noteSaveOut", "Deleted.");
+  setNoteEditingBanner();
+}
+
+function renderNotesFromState(sheet) {
+  const list = el("noteList");
+  const btnNew = el("btnNewNote");
+  const btnSave = el("btnSaveNote");
+  const btnDel = el("btnDeleteNote");
+  if (btnNew) btnNew.disabled = false;
+  if (btnSave) btnSave.disabled = false;
+  if (btnDel) btnDel.disabled = !activeNoteId;
+  if (!list) return;
+
+  const notes = (sheet && Array.isArray(sheet.notes)) ? sheet.notes : [];
+  if (!notes.length) {
+    list.textContent = "No notes yet.";
+    return;
+  }
+
+  const sorted = notes.slice().filter(n => n && typeof n === "object").sort((a, b) => {
+    const au = Number(a.updated_at || a.created_at || 0) || 0;
+    const bu = Number(b.updated_at || b.created_at || 0) || 0;
+    return bu - au;
+  });
+
+  list.innerHTML = "";
+  for (const n of sorted) {
+    const nid = (n.note_id || "").toString();
+    if (!nid) continue;
+    const item = document.createElement("div");
+    item.className = "noteItem" + (activeNoteId === nid ? " active" : "");
+    const title = document.createElement("div");
+    title.textContent = (n.title || "Note").toString();
+    const meta = document.createElement("div");
+    meta.className = "hint mono";
+    const ts = Number(n.updated_at || n.created_at || 0) || 0;
+    meta.textContent = ts ? new Date(ts * 1000).toLocaleString() : "";
+    item.appendChild(title);
+    item.appendChild(meta);
+    item.onclick = () => {
+      activeNoteId = nid;
+      const t = el("noteTitle");
+      const x = el("noteText");
+      if (t) t.value = (n.title || "").toString();
+      if (x) x.value = (n.text || "").toString();
+      setNoteEditingBanner();
+      renderNotesFromState(activeSheet);
+    };
+    list.appendChild(item);
+  }
+}
+
+
+function updateRollRequestUI() {
+  const banner = el("rollRequestBanner");
+  const title = el("rollRequestTitle");
+  const meta = el("rollRequestMeta");
+  const expectedOut = el("expectedOut");
+
+  if (!banner || !title || !meta || !expectedOut) return;
+
+  if (activeRollRequest) {
+    banner.classList.remove("hidden");
+    const lbl = activeRollRequest.label || activeRollRequest.roll_kind || "Requested roll";
+    title.textContent = lbl;
+
+    const dc = (activeRollRequest.dc === null || activeRollRequest.dc === undefined) ? "" : ` DC ${activeRollRequest.dc}`;
+    const am = (activeRollRequest.adv_mode && activeRollRequest.adv_mode !== "normal") ? ` • ${activeRollRequest.adv_mode}` : "";
+    meta.textContent = `Roll pending${am}${dc}`;
+    expectedOut.textContent = `d${activeRollRequest.expected_sides} (${activeRollRequest.expected_count_min}-${activeRollRequest.expected_count_max})`;
+  } else if (needDamage) {
+    banner.classList.remove("hidden");
+    title.textContent = "Damage";
+    meta.textContent = "Roll pending";
+    expectedOut.textContent = (needDamage.damage_expr || "damage dice");
+  } else if (hasPending) {
+    banner.classList.remove("hidden");
+    title.textContent = "Attack (to-hit)";
+    meta.textContent = "Roll pending";
+    expectedOut.textContent = "d20 (1)";
+  } else {
+    banner.classList.add("hidden");
+    expectedOut.textContent = "—";
+  }
+}
+
+function updateRollControls() {
+  const btnRoll = el("btnRoll");
+  const freeSides = el("freeSides");
+  const freeCount = el("freeCount");
+
+  const serverRequestActive = !!(activeRollRequest || needDamage || hasPending);
+  const freeAllowed = !serverRequestActive;
+
+  if (btnRoll) btnRoll.disabled = false; // always allowed; logic inside handles state
+  if (freeSides) freeSides.disabled = !freeAllowed;
+  if (freeCount) freeCount.disabled = !freeAllowed;
+}
+
+function clearRollUI() {
+  lastRoll = null;
+  const ro = el("rollOut"); if (ro) ro.textContent = "—";
+  const co = el("chosenOut"); if (co) co.textContent = "—";
+}
+
+function getFreeCount() {
+  const fc = el("freeCount");
+  let v = fc ? Number(fc.value || "1") : 1;
+  if (!Number.isFinite(v) || v < 1) v = 1;
+  v = Math.min(100, Math.floor(v));
+  if (fc) fc.value = String(v);
+  localStorage.setItem("grengine_free_roll_count", String(v));
+  return v;
+}
+
+function loadFreeCount() {
+  const saved = localStorage.getItem("grengine_free_roll_count");
+  const fc = el("freeCount");
+  if (fc && saved) {
+    const v = Math.max(1, Math.min(100, parseInt(saved, 10) || 1));
+    fc.value = String(v);
+  }
+}
+
+// ---------------------------
+// Rendering: unified activity feed + audit log
+// ---------------------------
+function _pushFeed(clsName, html) {
+  feedEntries.unshift({ clsName, html });
+  if (feedEntries.length > 200) feedEntries = feedEntries.slice(0, 200);
+  renderFeed();
+}
+
+function renderFeed() {
+  const out = el("feed");
+  const empty = el("noFeed");
+  if (!out || !empty) return;
+
+  if (!feedEntries.length) {
+    empty.style.display = "block";
+    out.innerHTML = "";
+    return;
+  }
+
+  empty.style.display = "none";
+  out.innerHTML = "";
+  for (const e of feedEntries) {
+    const div = document.createElement("div");
+    div.className = e.clsName;
+    div.innerHTML = e.html;
+    out.appendChild(div);
+  }
+}
+
+function pushResult(res) {
+  const attacker = res.attacker_name || res.attacker_token_id || "";
+  const target = res.target_name || res.target_token_id || "";
+  const verdict = (res.result || "MISS").toUpperCase();
+  const dmg = res.damage | 0;
+  const nat = (res.nat20 ? " (NAT20)" : (res.nat1 ? " (NAT1)" : ""));
+  const hp = (typeof res.target_hp === "number" && typeof res.target_max_hp === "number")
+    ? ` • HP ${res.target_hp}/${res.target_max_hp}` : "";
+
+  _pushFeed(
+    "pending",
+    `
+      <div class="top">
+        <div><b>${escapeHtml(verdict)}</b>${escapeHtml(nat)} — ${escapeHtml(attacker)} → ${escapeHtml(target)}</div>
+        <div class="mono">${escapeHtml(res.attack_id || "")}</div>
+      </div>
+      <div class="kv">
+        <span><b>d20:</b> ${res.roll}</span>
+        <span><b>Total:</b> ${res.total}</span>
+        <span><b>AC:</b> ${res.ac}</span>
+        <span><b>DMG:</b> ${dmg}${hp}</span>
+      </div>
+    `
+  );
+}
+
+function pushMsg(m) {
+  const txt = (m.text || "").toString();
+  const meta = (m.data && Object.keys(m.data).length)
+    ? `<div class="mono small">${escapeHtml(JSON.stringify(m.data))}</div>` : "";
+
+  _pushFeed(
+    `msg ${String(m.kind || "info").toLowerCase()}`,
+    `
+      <div class="top">
+        <div><b>${escapeHtml(String(m.kind || "info").toUpperCase())}</b></div>
+        <div class="mono">${escapeHtml(String(m.message_id || ""))}</div>
+      </div>
+      <div>${escapeHtml(txt)}</div>
+      ${meta}
+    `
+  );
+}
+
+function renderLogs() {
+  const list = el("logList");
+  if (!list) return;
+
+  if (!lastLogs || lastLogs.length === 0) {
+    list.textContent = "—";
+    return;
+  }
+
+  const lines = [];
+  for (const e of lastLogs) {
+    const ts = e.ts ? new Date(e.ts * 1000).toLocaleTimeString() : "";
+    const t = e.type || "";
+    if (t === "ROLL_REQUESTED") {
+      const exp = (e.expected && e.expected.sides) ? `d${e.expected.sides}` : "";
+      lines.push(`[${ts}] REQUESTED ${exp} ${e.label || ""} (id=${e.request_id || ""})`);
+    } else if (t === "ROLL_SUBMITTED") {
+      lines.push(`[${ts}] SUBMITTED d${e.die_sides || ""} rolls=${JSON.stringify(e.rolls || [])} chosen=${e.chosen} ${e.label || ""}`);
+    } else if (t === "PENDING_ATTACK") {
+      lines.push(`[${ts}] PENDING_ATTACK id=${e.pending_attack_id || ""} ${e.attacker || ""} -> ${e.target || ""} dmg=${e.damage_expr || ""}`);
+    } else {
+      lines.push(`[${ts}] ${t} ${JSON.stringify(e)}`);
+    }
+  }
+  list.textContent = lines.join("\n");
+}
+
+// ---------------------------
+// Polling
+// ---------------------------
+async function pollPendingOnce() {
+  const data = await apiGet("/pending_attacks/mine");
+  const pending = (data && data.pending_attacks) ? data.pending_attacks : [];
+  // Deterministic FIFO: created_at then expires_at
+  pending.sort((a, b) => {
+    const ca = Number(a.created_at || 0);
+    const cb = Number(b.created_at || 0);
+    if (ca !== cb) return ca - cb;
+    return Number(a.expires_at || 0) - Number(b.expires_at || 0);
+  });
+  hasPending = pending.length > 0;
+  activePendingAttack = hasPending ? pending[0] : null;
+
+  // Add audit lines to log (local) when new pending attacks appear
+  for (const pa of pending) {
+    const key = `${pa.pending_attack_id || ""}:${pa.created_at || ""}`;
+    if (!key.trim()) continue;
+    if (seenPendingKeys.has(key)) continue;
+    seenPendingKeys.add(key);
+    // push a synthetic log entry
+    lastLogs = (lastLogs || []).concat([{
+      ts: Math.floor(Date.now() / 1000),
+      type: "PENDING_ATTACK",
+      pending_attack_id: pa.pending_attack_id || "",
+      attacker: (pa.attacker && (pa.attacker.name || pa.attacker.token_id)) || "",
+      target: (pa.target && (pa.target.name || pa.target.token_id)) || "",
+      damage_expr: pa.damage_expr || ""
+    }]);
+    if (lastLogs.length > 200) lastLogs = lastLogs.slice(-200);
+  }
+}
+
+async function pollRollRequestsOnce() {
+  const data = await apiGet("/roll_requests/mine");
+  const reqs = (data && data.roll_requests) ? data.roll_requests : [];
+
+  // Priority tier then FIFO within tier by expires_at (server provides expires ordering)
+  reqs.sort((a, b) => {
+    const pa = rollPriority(a.roll_kind);
+    const pb = rollPriority(b.roll_kind);
+    if (pa !== pb) return pa - pb;
+    const ea = Number(a.expires_at || 0);
+    const eb = Number(b.expires_at || 0);
+    return ea - eb;
+  });
+
+  const next = (reqs.length > 0) ? reqs[0] : null;
+
+  // If request changes, clear buffer
+  if (!next || !activeRollRequest || (next.request_id !== activeRollRequest.request_id)) {
+    armedBuffer = [];
+    armedBuffer._rid = "";
+  }
+  activeRollRequest = next;
+}
+
+async function pollResultsOnce() {
+  const data = await apiGet("/attack_results/mine");
+  const results = (data && data.results) ? data.results : [];
+  for (const res of results) pushResult(res);
+}
+
+async function pollMessagesOnce() {
+  const data = await apiGet("/messages/mine");
+  const msgs = (data && data.messages) ? data.messages : [];
+
+  for (const m of msgs) {
+    pushMsg(m);
+
+    // Legacy NEED_DAMAGE capture (no damage panel; handled via Roll button)
+    try {
+      const d = (m && m.data) ? m.data : {};
+      if (d && d.type === "NEED_DAMAGE" && d.attack_id) {
+        const key = String(d.dedupe_key || (`NEED_DAMAGE:${d.attack_id}`));
+        if (seenDedupeKeys.has(key)) continue;
+        seenDedupeKeys.add(key);
+
+        needDamage = {
+          attack_id: String(d.attack_id),
+          damage_expr: String(d.damage_expr || "").trim(),
+          crit: !!d.crit,
+          weapon_name: String(d.weapon_name || ""),
+          target_name: String(d.target_name || "")
+        };
+      }
+    } catch (_) {}
+  }
+}
+
+
+async function pollHandoutsOnce() {
+  const data = await apiGet("/handouts/mine");
+  handouts = (data && Array.isArray(data.handouts)) ? data.handouts : [];
+  renderHandouts();
+}
+
+function renderHandouts() {
+  const list = el("handoutList");
+  const view = el("handoutView");
+  const titleEl = el("handoutTitle");
+  const bodyEl = el("handoutBody");
+  const btnClose = el("handoutClose");
+  if (btnClose) btnClose.onclick = () => {
+    activeHandoutId = null;
+    if (view) view.classList.add("hidden");
+  };
+  if (!list) return;
+
+  if (!handouts.length) {
+    list.textContent = "No handouts.";
+    return;
+  }
+  list.innerHTML = "";
+  for (const h of handouts) {
+    const row = document.createElement("div");
+    row.className = "noteRow";
+    const badge = h.read ? "" : " • NEW";
+    row.innerHTML = `<div class="noteTitle">${escapeHtml(h.title || "Handout")}${badge}</div>
+                     <div class="noteMeta mono">${new Date((h.created_at||0)*1000).toLocaleString()}</div>`;
+row.onclick = async () => {
+  activeHandoutId = h.handout_id;
+  const payload = h.payload || {};
+
+  const lang = String(payload.language || payload.lang || h.language || "").trim();
+
+  let canRead = true;
+  try {
+    canRead = playerCanReadLanguage(lang);
+  } catch (e) {
+    console.warn("playerCanReadLanguage failed; defaulting to unreadable-safe open", e);
+    canRead = false;
+  }
+
+  const unreadableMode = String(h.unreadable_mode || payload.unreadable_mode || "blocked")
+    .trim()
+    .toLowerCase();
+
+  // Title ONLY (no language / unreadable hints)
+  if (titleEl) titleEl.textContent = (h.title || "Handout");
+
+  // Pull body from all likely keys
+  let body = (h.text ?? payload.text ?? payload.body ?? payload.content ?? payload.message ?? "").toString().trim();
+
+  const isUnreadable = (lang && !canRead) || Boolean(h.unreadable);
+
+  if (isUnreadable) {
+    if (unreadableMode === "scramble") {
+      body = body || "You can't read this handout.";
+    } else {
+      body = "You can't read this handout.";
+    }
+  } else {
+    body = body || "(Empty handout.)";
+  }
+
+  if (bodyEl) bodyEl.textContent = body;
+
+  if (view) {
+    view.classList.remove("hidden");
+    view.style.display = "block";
+  }
+
+  // Mark read (do not re-render immediately)
+  if (!h.read) {
+    try { await apiPost("/handouts/read", { handout_id: h.handout_id }); } catch (e) {}
+    h.read = true;
+  }
+};
+    list.appendChild(row);
+  }
+}
+
+
+
+
+async function pollLogsOnce() {
+  // server-side log entries
+  const data = await apiGet("/logs/mine?limit=200");
+  const logs = (data && data.logs) ? data.logs : [];
+  // merge with local synthetic pending logs (keep last 200)
+  const merged = (logs || []).slice(-200);
+  // append any synthetic entries that aren't in server logs
+  if (lastLogs && lastLogs.length) {
+    for (const e of lastLogs) {
+      if (e.type === "PENDING_ATTACK") merged.push(e);
+    }
+  }
+  lastLogs = merged.slice(-200);
+  renderLogs();
+}
+
+async function pollTick() {
+  try {
+    await pollPendingOnce();
+    await pollRollRequestsOnce();
+    await pollResultsOnce();
+    await pollMessagesOnce();
+    await pollHandoutsOnce();
+    await pollLogsOnce();
+    await pollSheetStateOnce();
+
+    updateRollRequestUI();
+    updateRollControls();
+
+    setNet(true);
+    // Do not spam the main status line; it's used for UX feedback.
+    const s = el("status");
+    if (s && (s.classList.contains("muted") || s.textContent === "Idle")) {
+      setStatus("Online", "ok");
+    }
+  } catch (e) {
+    setNet(false);
+    // Keep existing status content if it is not muted.
+    const s = el("status");
+    if (s && !s.classList.contains("muted")) return;
+    setStatus(`Offline`, "warn");
+  }
+}
+
+function startPolling() {
+  if (timer) clearInterval(timer);
+  timer = setInterval(pollTick, 1000);
+  pollTick();
+}
+
+function stopPolling() {
+  if (timer) clearInterval(timer);
+  timer = null;
+}
+
+// ---------------------------
+// Roll button
+// ---------------------------
+async function submitActiveRollRequest(mode, sides, rolls, chosen) {
+  if (!activeRollRequest) throw new Error("No active roll request");
+  const payload = {
+    request_id: activeRollRequest.request_id,
+    die_sides: sides,
+    rolls: rolls,
+    mode: mode || "normal",
+    chosen: chosen,
+    extras: {}
+  };
+  await apiPost("/roll_requests/submit", payload);
+  setStatus("Roll submitted.", "ok");
+  activeRollRequest = null;
+  needDamage = null;
+  hasPending = false;
+  activePendingAttack = null;
+  await pollTick();
+}
+
+async function submitPendingAttackRoll(pa, rollValue) {
+  if (!activeCharacterId) {
+    throw new Error("No active character selected");
+  }
+
+  const payload = {
+    pending_attack_id: pa.pending_attack_id,
+    mode: "normal",
+    rolls: [rollValue],
+    attacker_character_id: activeCharacterId
+  };
+
+  await apiPost("/rolls", payload);
+  setStatus("To-hit submitted.", "ok");
+  await pollTick();
+}
+
+async function submitDamageLegacy() {
+  if (!needDamage || !needDamage.attack_id) throw new Error("No damage requested");
+  const dmg = rollDamage(needDamage.damage_expr, !!needDamage.crit);
+  const payload = {
+    attack_id: needDamage.attack_id,
+    damage_roll: {
+      expr: needDamage.damage_expr,
+      dice: dmg.dice || [],
+      modifier: dmg.modifier || 0,
+      total: dmg.total || 0,
+      crit_applied: !!dmg.crit_applied
+    }
+  };
+  await apiPost("/damage_rolls", payload);
+  setStatus("Damage submitted.", "ok");
+
+  // Display
+  const ro = el("rollOut"); if (ro) ro.textContent = JSON.stringify(dmg.dice || []);
+  const co = el("chosenOut"); if (co) co.textContent = `total=${dmg.total}`;
+
+  needDamage = null;
+  await pollTick();
+}
+
+function bindRollButton() {
+  const btn = document.querySelector("#btnRoll");
+  if (!btn) return;
+
+  btn.disabled = false;
+  btn.onclick = null;
+  btn.onclick = () => rollClicked().catch(e => {
+    console.error("[ROLL] click failed", e);
+    setStatus(`Roll failed: ${e}`, "err");
+  });
+}
+
+async function rollClicked() {
+  setStatus("ROLL CLICKED", "warn");
+  console.log("[ROLL] clicked", {
+    activeRollRequest,
+    needDamage,
+    activePendingAttack,
+    activeCharacterId,
+    activePlayerId
+  });
+  // 1) Generic roll requests (server-driven expected + adv_mode)
+  if (activeRollRequest) {
+    const sides = Number(activeRollRequest.expected_sides || 20);
+    const reqMode = (activeRollRequest.adv_mode || "normal").toLowerCase().trim();
+    const minCount = Number(activeRollRequest.expected_count_min || 1);
+
+    const wantsTwo = (reqMode === "advantage" || reqMode === "disadvantage" || minCount >= 2);
+
+    // bind buffer to request id
+    const rid = String(activeRollRequest.request_id || "");
+    if (armedBuffer._rid !== rid) {
+      armedBuffer = [];
+      armedBuffer._rid = rid;
+    }
+
+    const rollOne = () => 1 + Math.floor(Math.random() * sides);
+
+    if (wantsTwo) {
+      const r = rollOne();
+      armedBuffer.push(r);
+
+      const ro = el("rollOut"); if (ro) ro.textContent = JSON.stringify(armedBuffer);
+      const co = el("chosenOut"); if (co) co.textContent = "—";
+
+      if (armedBuffer.length < 2) {
+        setStatus("Roll pending: 1/2 captured. Roll again.", "warn");
+        return;
+      }
+
+      const rolls = armedBuffer.slice(0, 2);
+      const chosen = (reqMode === "disadvantage") ? Math.min(...rolls) : Math.max(...rolls);
+
+      const ro2 = el("rollOut"); if (ro2) ro2.textContent = JSON.stringify(rolls);
+      const co2 = el("chosenOut"); if (co2) co2.textContent = String(chosen);
+
+      await submitActiveRollRequest(reqMode, sides, rolls, chosen);
+      armedBuffer = [];
+      armedBuffer._rid = "";
+      return;
+    } else {
+      const r = rollOne();
+      const ro = el("rollOut"); if (ro) ro.textContent = JSON.stringify([r]);
+      const co = el("chosenOut"); if (co) co.textContent = String(r);
+      await submitActiveRollRequest("normal", sides, [r], r);
+      return;
+    }
+  }
+
+  // 2) Legacy NEED_DAMAGE (no UI panel; Roll submits damage)
+  if (needDamage) {
+    await submitDamageLegacy();
+    return;
+  }
+
+  // 3) Pending attack to-hit (legacy Option B): FIFO auto-bound, hidden from UI
+  if (activePendingAttack) {
+    const r = 1 + Math.floor(Math.random() * 20);
+    const ro = el("rollOut"); if (ro) ro.textContent = JSON.stringify([r]);
+    const co = el("chosenOut"); if (co) co.textContent = String(r);
+    await submitPendingAttackRoll(activePendingAttack, r);
+    return;
+  }
+
+  // 4) Free roll (only when idle)
+  const fs = el("freeSides");
+  const sides = fs ? Number(fs.value || "20") : 20;
+  const count = getFreeCount();
+
+  const rolls = rollNDY(count, sides);
+  const ro = el("rollOut"); if (ro) ro.textContent = JSON.stringify(rolls);
+
+  // display: sum for multi-dice free rolls, else single
+  const co = el("chosenOut");
+  if (co) co.textContent = (count === 1) ? String(rolls[0]) : `sum=${rolls.reduce((a, b) => a + b, 0)}`;
+
+  setStatus("Free roll complete.", "ok");
+}
+
+// ---------------------------
+// Login + character selection
+// ---------------------------
+async function loadActiveCampaign() {
+  // Single-campaign mode: always use server default
+  try {
+    const data = await apiGet("/campaigns"); // GET /api/campaigns
+    const def = (data && data.default) ? String(data.default).trim() : "";
+    if (def) return def;
+
+    const arr = (data && Array.isArray(data.campaigns)) ? data.campaigns : [];
+    if (arr.length) return String(arr[0]).trim();
+  } catch (e) {
+    console.warn("loadActiveCampaign fallback:", e);
+  }
+
+  // Final fallback if endpoint fails
+  return "Test";
+}
+
+function setLoggedInUI(isLoggedIn) {
+  const btnLogin = el("btnLogin");
+  const btnLogout = el("btnLogout");
+  const btnLogoutTop = el("btnLogoutTop");
+  const characterSelect = el("characterSelect");
+  const btnEnter = el("btnEnter");
+  const btnCreate = el("btnCreateChar");
+
+  if (btnLogin) btnLogin.disabled = isLoggedIn;
+  if (btnLogout) btnLogout.disabled = !isLoggedIn;
+  if (btnLogoutTop) {
+    btnLogoutTop.disabled = !isLoggedIn;
+    btnLogoutTop.classList.toggle("hidden", !isLoggedIn);
+  }
+
+  const btnLogoutFloat = el("btnLogoutFloat");
+  if (btnLogoutFloat) {
+    btnLogoutFloat.disabled = !isLoggedIn;
+    // visible only when in app screen
+    const as = el("appScreen");
+    const inApp = as && !as.classList.contains("hidden");
+    btnLogoutFloat.classList.toggle("hidden", !isLoggedIn || !inApp);
+  }
+
+  // Hide the big header when in app screen
+  const topHeader = el("topHeader");
+  if (topHeader) {
+    const as = el("appScreen");
+    const inApp = as && !as.classList.contains("hidden");
+    topHeader.classList.toggle("hidden", inApp);
+  }
+
+  if (characterSelect) characterSelect.disabled = !isLoggedIn;
+  if (btnEnter) btnEnter.disabled = !isLoggedIn;
+  if (btnCreate) btnCreate.disabled = !isLoggedIn;
+const btnNewNote = el("btnNewNote");
+  const btnSaveNote = el("btnSaveNote");
+  const btnDeleteNote = el("btnDeleteNote");
+  if (btnNewNote) btnNewNote.disabled = true;
+  if (btnSaveNote) btnSaveNote.disabled = true;
+  if (btnDeleteNote) btnDeleteNote.disabled = true;
+}
+
+async function refreshCharacters() {
+  const data = await apiGet("/characters");
+  const chars = data.characters || [];
+  const active = data.active_character_id || "";
+
+  const sel = el("characterSelect");
+  if (!sel) return;
+
+  sel.innerHTML = "";
+  for (const c of chars) {
+    const opt = document.createElement("option");
+    opt.value = c.character_id;
+    opt.textContent = `${c.display_name || c.character_id}`;
+    sel.appendChild(opt);
+  }
+
+  if (active && chars.find(x => x.character_id === active)) {
+    sel.value = active;
+  } else {
+    // try last selection
+    const last = localStorage.getItem("grengine_last_character_id") || "";
+    if (last && chars.find(x => x.character_id === last)) sel.value = last;
+  }
+
+  if (!chars.length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "No characters assigned to this player.";
+    sel.appendChild(opt);
+  }
+}
+
+
+async function createCharClicked() {
+  try {
+    const name = prompt("Character name:", "New Character") || "";
+    const display_name = name.trim() || "New Character";
+    const data = await apiPost("/characters/create", { display_name });
+    await refreshCharacters();
+    const sel = el("characterSelect");
+    if (sel && data && data.character_id) sel.value = data.character_id;
+    setStatus("Character created. Select it and Enter.", "ok");
+  } catch (e) {
+    setStatus(`Create failed: ${e}`, "err");
+  }
+}
+
+async function loginClicked() {
+  try {
+    const playerIdEl = el("playerId");
+    const pinEl = el("pin");
+    const playerId = playerIdEl ? (playerIdEl.value || "").trim() : "";
+    const pin = pinEl ? (pinEl.value || "").trim() : "";
+
+    if (!activeCampaignId) {
+      activeCampaignId = "Test";
+    }
+    if (!playerId) { setStatus("Enter Player ID.", "warn"); return; }
+    if (!pin) { setStatus("Enter PIN.", "warn"); return; }
+
+    const r = await fetch(`${apiBase()}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player_id: playerId, pin })
+    });
+    const text = await r.text();
+    if (!r.ok) throw new Error(`${r.status} ${text}`);
+    const data = JSON.parse(text);
+
+    setToken(data.token);
+    activePlayerId = String(data.player_id || playerId || "");
+    setLoggedInUI(true);
+    setCampaignMeta(activeCampaignId, (activePlayerId||"—"), "—");
+    setStatus(`Logged in as ${data.player_id}`, "ok");
+
+    await refreshCharacters();
+  } catch (e) {
+    clearToken();
+    setLoggedInUI(false);
+    setStatus(`Login failed: ${e}`, "err");
+  }
+}
+
+async function logoutClicked() {
+  try { await apiPost("/auth/logout", {}); } catch (_) {}
+  clearToken();
+  setLoggedInUI(false);
+  stopPolling();
+  enableTabs(false);
+  showLoginScreen();
+  setStatus("Logged out.", "muted");
+}
+
+async function enterClicked() {
+  const sel = el("characterSelect");
+  const charId = sel ? (sel.value || "").trim() : "";
+  if (!charId) { setStatus("Select a character first.", "warn"); return; }
+  try {
+    await apiPost("/characters/select", { character_id: charId });
+    activeCharacterId = charId;
+    localStorage.setItem("grengine_last_character_id", charId);
+
+    // Update header meta
+    const displayName = sel.options[sel.selectedIndex]?.textContent || charId;
+    setCampaignMeta(activeCampaignId, (activePlayerId||"—"), displayName);
+
+    showAppScreen();
+    bindRollButton();
+    enableTabs(true);
+    startPolling();
+    loadSheetOnce(true).catch(() => {});
+
+    const btnNewNote = el("btnNewNote");
+    const btnSaveNote = el("btnSaveNote");
+    const btnDeleteNote = el("btnDeleteNote");
+    if (btnNewNote) btnNewNote.disabled = false;
+    if (btnSaveNote) btnSaveNote.disabled = false;
+    if (btnDeleteNote) btnDeleteNote.disabled = false;
+    setNoteEditingBanner();
+
+    setStatus("Ready.", "ok");
+  } catch (e) {
+    setStatus(`Select failed: ${e}`, "err");
+  }
+}
+
+// ---------------------------
+// Boot
+// ---------------------------
+function wireUI() {
+  console.log("[wireUI] start");
+  const btnLogin = el("btnLogin"); if (btnLogin) btnLogin.onclick = loginClicked;
+  const btnLogout = el("btnLogout");
+  const btnLogoutTop = el("btnLogoutTop");
+  const btnLogoutFloat = el("btnLogoutFloat");
+  if (btnLogout) btnLogout.onclick = logoutClicked;
+  if (btnLogoutTop) btnLogoutTop.onclick = logoutClicked;
+  if (btnLogoutFloat) btnLogoutFloat.onclick = logoutClicked;
+  const btnEnter = el("btnEnter"); if (btnEnter) btnEnter.onclick = enterClicked;
+  const btnCreate = el("btnCreateChar"); if (btnCreate) btnCreate.onclick = createCharClicked;
+
+const btnCreateOk = el("btnCreateCharConfirm");
+const btnCreateCancel = el("btnCreateCharCancel");
+// Avoid breaking wireUI if these panel helpers are not implemented.
+if (btnCreateOk) btnCreateOk.onclick = null;
+if (btnCreateCancel) btnCreateCancel.onclick = null;
+    bindRollButton();
+  const btnRoll = el("btnRoll");
+  if (btnRoll) {
+    btnRoll.disabled = false;
+    btnRoll.onclick = () => {
+      console.log("[ROLL] onclick fired");
+      return rollClicked().catch(e => {
+        console.error("[ROLL] click failed", e);
+        setStatus(`Roll failed: ${e}`, "err");
+      });
+    };
+  }
+
+  const btnNewNote = el("btnNewNote");
+  if (btnNewNote) btnNewNote.onclick = () => clearNoteEditor();
+  const btnSaveNote = el("btnSaveNote");
+  if (btnSaveNote) btnSaveNote.onclick = () => saveNoteClicked().catch(e => setText("noteSaveOut", `Save failed: ${e}`));
+  const btnDeleteNote = el("btnDeleteNote");
+  if (btnDeleteNote) btnDeleteNote.onclick = () => deleteNoteClicked().catch(e => setText("noteSaveOut", `Delete failed: ${e}`));
+
+
+// Sheet inputs (debounced PATCH)
+const bind = (id, fn) => { const n = el(id); if (n) n.oninput = fn; };
+bind("sheetName", () => queueSheetPatch("display_name", (el("sheetName").value || "").trim()));
+bind("sheetClass", () => queueSheetPatch("meta.class", (el("sheetClass").value || "").trim()));
+bind("sheetRace", () => queueSheetPatch("meta.race", (el("sheetRace").value || "").trim()));
+bind("sheetBackground", () => queueSheetPatch("meta.background", (el("sheetBackground").value || "").trim()));
+bind("sheetLevel", () => queueSheetPatch("meta.level", readInt("sheetLevel", 1)));
+bind("sheetAlignment", () => queueSheetPatch("meta.alignment", (el("sheetAlignment").value || "").trim()));
+
+bind("sheetCurHp", () => queueSheetPatch("stats.current_hp", readInt("sheetCurHp", 0)));
+bind("sheetTempHp", () => queueSheetPatch("resources.temp_hp", readInt("sheetTempHp", 0)));
+
+const abMap = [
+  ["abStr", "str"],
+  ["abDex", "dex"],
+  ["abCon", "con"],
+  ["abInt", "int"],
+  ["abWis", "wis"],
+  ["abCha", "cha"],
+];
+
+for (const [id, key] of abMap) {
+  const n = el(id);
+  if (!n) continue;
+
+  const commitAbility = async () => {
+    let v = parseInt(String(n.value || "").trim(), 10);
+    if (!Number.isFinite(v)) v = 10;
+    v = Math.max(1, Math.min(30, v));
+    n.value = String(v);
+
+    // local preview first
+    activeSheet = activeSheet || {};
+    activeSheet.abilities = {
+      ...(activeSheet.abilities || {}),
+      [key]: v,
+    };
+    refreshAbilityModsFromInputs();
+
+    try {
+      await apiPatch("/sheet/mine", {
+        patch: {
+          abilities: {
+            [key]: v,
+          },
+        },
+        finalize: false,
+      });
+      await loadSheetOnce(true);
+    } catch (e) {
+      console.warn("[ABILITIES] save failed", e);
+      setStatus(`Ability save failed: ${e}`, "err");
+    }
+  };
+
+  n.oninput = refreshAbilityModsFromInputs;
+  n.onchange = commitAbility;
+  n.onblur = commitAbility;
+}
+
+// Other proficiencies (creation-only)
+bind("profArmor", () => queueSheetPatch("proficiencies.other.armor", (el("profArmor").value || "").trim()));
+bind("profWeapons", () => queueSheetPatch("proficiencies.other.weapons", (el("profWeapons").value || "").trim()));
+bind("profTools", () => queueSheetPatch("proficiencies.other.tools", (el("profTools").value || "").trim()));
+bind("profOther", () => queueSheetPatch("proficiencies.other.other", (el("profOther").value || "").trim()));
+
+// Languages (creation-only)
+// Languages (always editable)
+// Languages (restored from 1.6.17 behaviour)
+const btnLangAdd = el("btnLangAdd");
+const langNewName = el("langNewName");
+
+const refreshLangAddButton = () => {
+  const nm = langNewName ? String(langNewName.value || "").trim() : "";
+  if (langNewName) {
+    langNewName.disabled = false;
+    langNewName.removeAttribute("disabled");
+  }
+  if (btnLangAdd) {
+    btnLangAdd.disabled = (nm.length === 0);
+    if (nm.length === 0) btnLangAdd.setAttribute("disabled", "disabled");
+    else btnLangAdd.removeAttribute("disabled");
+  }
+};
+
+if (langNewName) {
+  langNewName.disabled = false;
+  langNewName.removeAttribute("disabled");
+  langNewName.oninput = refreshLangAddButton;
+  langNewName.onchange = refreshLangAddButton;
+  langNewName.onkeyup = refreshLangAddButton;
+}
+
+if (btnLangAdd) {
+  btnLangAdd.type = "button";
+  btnLangAdd.onclick = async () => {
+    const nm = langNewName ? String(langNewName.value || "").trim() : "";
+    if (!nm) return;
+
+    const sheet = activeSheet || {};
+    const prof = (sheet.proficiencies && typeof sheet.proficiencies === "object")
+      ? sheet.proficiencies
+      : {};
+    const langs = Array.isArray(prof.languages) ? prof.languages.slice() : [];
+
+    const key = nm.toLowerCase();
+    if (langs.some(l => l && typeof l === "object" && String(l.name || "").trim().toLowerCase() === key)) {
+      if (langNewName) langNewName.value = "";
+      refreshLangAddButton();
+      return;
+    }
+
+    langs.push({
+      name: nm,
+      speak: true,
+      read: true,
+      write: true,
+    });
+
+    await _saveLanguages(langs);
+
+    if (langNewName) langNewName.value = "";
+    refreshLangAddButton();
+  };
+}
+
+refreshLangAddButton();
+
+// Combat helpers
+const insp = el("combatInspiration");
+if (insp) insp.onchange = () => queueSheetPatch("combat.inspiration", !!insp.checked);
+bind("hitDieSides", () => queueSheetPatch("combat.hit_die_sides", readInt("hitDieSides", 8)));
+bind("hitDiceTotal", () => queueSheetPatch("combat.hit_dice_total", readInt("hitDiceTotal", 1)));
+bind("hitDiceUsed", () => queueSheetPatch("combat.hit_dice_used", readInt("hitDiceUsed", 0)));
+bind("dsSucc", () => queueSheetPatch("combat.death_saves.successes", readInt("dsSucc", 0)));
+bind("dsFail", () => queueSheetPatch("combat.death_saves.failures", readInt("dsFail", 0)));
+
+// Currency
+bind("curCp", () => queueSheetPatch("currency.cp", readInt("curCp", 0)));
+bind("curSp", () => queueSheetPatch("currency.sp", readInt("curSp", 0)));
+bind("curGp", () => queueSheetPatch("currency.gp", readInt("curGp", 0)));
+
+// Background
+bind("bgTraits", () => queueSheetPatch("background.personality_traits", (el("bgTraits").value || "").trim()));
+bind("bgIdeals", () => queueSheetPatch("background.ideals", (el("bgIdeals").value || "").trim()));
+bind("bgBonds", () => queueSheetPatch("background.bonds", (el("bgBonds").value || "").trim()));
+bind("bgFlaws", () => queueSheetPatch("background.flaws", (el("bgFlaws").value || "").trim()));
+bind("bgBackstory", () => queueSheetPatch("background.backstory", (el("bgBackstory").value || "").trim()));
+
+// Features / traits
+bind("featTraits", () => queueSheetPatch("features.features_and_traits", (el("featTraits").value || "").trim()));
+
+// Spellcasting
+bind("scClass", () => queueSheetPatch("spellcasting.class", (el("scClass").value || "").trim()));
+bind("scAbility", () => queueSheetPatch("spellcasting.ability", (el("scAbility").value || "").trim()));
+bind("scDc", () => queueSheetPatch("spellcasting.save_dc", readInt("scDc", 0)));
+bind("scAtk", () => queueSheetPatch("spellcasting.attack_bonus", readInt("scAtk", 0)));
+bind("scCantrips", () => queueSheetPatch("spellcasting.cantrips", (el("scCantrips").value || "").trim()));
+
+// Details
+bind("dtAge", () => queueSheetPatch("details.age", (el("dtAge").value || "").trim()));
+bind("dtHeight", () => queueSheetPatch("details.height", (el("dtHeight").value || "").trim()));
+bind("dtWeight", () => queueSheetPatch("details.weight", (el("dtWeight").value || "").trim()));
+bind("dtEyes", () => queueSheetPatch("details.eyes", (el("dtEyes").value || "").trim()));
+bind("dtSkin", () => queueSheetPatch("details.skin", (el("dtSkin").value || "").trim()));
+bind("dtHair", () => queueSheetPatch("details.hair", (el("dtHair").value || "").trim()));
+bind("dtAppearance", () => queueSheetPatch("details.appearance", (el("dtAppearance").value || "").trim()));
+bind("dtAllies", () => queueSheetPatch("details.allies_and_organizations", (el("dtAllies").value || "").trim()));
+bind("dtTreasure", () => queueSheetPatch("details.treasure", (el("dtTreasure").value || "").trim()));
+
+const btnFinalize = el("btnFinalize");
+if (btnFinalize) btnFinalize.onclick = () => finalizeSheet().catch(e => setStatus(`Finalize failed: ${e}`, "err"));
+
+  const freeCount = el("freeCount");
+  if (freeCount) freeCount.onchange = () => getFreeCount();
+
+  const btnExport = el('btnExportAudit');
+  if (btnExport) btnExport.onclick = () => {
+    try {
+      const blob = new Blob([JSON.stringify({campaign_id: activeCampaignId, player_id: activePlayerId, feed: feedEntries, logs: lastLogs, at: Date.now()}, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `grengine_audit_${(activePlayerId||'player')}_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) { console.warn('export failed', e); }
+  };
+  console.log("[wireUI] end");
+}
+
+async function boot() {
+  wireUI();
+  loadFreeCount();
+
+  try {
+    activeCampaignId = await loadActiveCampaign();
+  } catch (e) {
+    console.warn("Failed to determine active campaign, defaulting:", e);
+    activeCampaignId = "Test";
+  }
+
+  setCampaignMeta(activeCampaignId, (activePlayerId||"—"), "—", "—");
+  enableTabs(false);
+
+  // Resume session if token exists
+  const tok = getToken();
+  if (!tok) {
+    showLoginScreen();
+    setLoggedInUI(false);
+    setStatus("Please login.", "muted");
+    return;
+  }
+
+  try {
+    const me = await apiGet("/auth/me");
+    activePlayerId = (me && me.player_id) ? String(me.player_id) : activePlayerId;
+    setLoggedInUI(true);
+    setCampaignMeta(activeCampaignId, (activePlayerId||"—"), "—");
+    await refreshCharacters();
+
+    // auto-enter if server has active_character_id or last saved
+    const data = await apiGet("/auth/me");
+    const activeChar = (data && data.active_character_id) ? String(data.active_character_id) : "";
+    if (activeChar) {
+      activeCharacterId = activeChar;
+      // select and enter
+      const sel = el("characterSelect");
+      if (sel) sel.value = activeChar;
+      await enterClicked();
+      return;
+    }
+
+    showLoginScreen();
+    setStatus("Select character to enter.", "ok");
+  } catch (_) {
+    clearToken();
+    showLoginScreen();
+    setLoggedInUI(false);
+    setStatus("Session expired. Please login.", "warn");
+  }
+}
+
+boot();
